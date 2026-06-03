@@ -1,0 +1,294 @@
+:root {
+    --bg-light: #f0f2f5;
+    --text-light: #1a1a2e;
+    --card-bg-light: rgba(255, 255, 255, 0.75);
+    --border-light: rgba(255, 255, 255, 0.6);
+
+    --bg-dark: #0d0d1a;
+    --text-dark: #e8eaf6;
+    --card-bg-dark: rgba(22, 22, 42, 0.8);
+    --border-dark: rgba(255, 255, 255, 0.08);
+
+    --primary: #6366f1;
+    --secondary: #a855f7;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+}
+
+/* ── Base ─────────────────────────────────────────────── */
+body {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
+}
+
+body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+/* ── Glassmorphism Card ───────────────────────────────── */
+.glass-card {
+    background: var(--card-bg-light);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-light);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .glass-card {
+    background: var(--card-bg-dark);
+    border: 1px solid var(--border-dark);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ── Sidebar ──────────────────────────────────────────── */
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    padding-top: 24px;
+    z-index: 1000;
+    border-radius: 0 !important;
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 28px 32px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+}
+
+/* ── Nav Links ────────────────────────────────────────── */
+.nav-link {
+    color: var(--text-light);
+    font-weight: 500;
+    padding: 10px 16px;
+    margin: 3px 8px;
+    border-radius: 10px;
+    transition: all 0.25s;
+    font-size: 0.9rem;
+}
+
+body.dark-mode .nav-link {
+    color: var(--text-dark);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* ── Gradient Text ────────────────────────────────────── */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── Progress Bar ─────────────────────────────────────── */
+.progress {
+    height: 22px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+body.dark-mode .progress {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    transition: width 0.4s ease;
+    border-radius: 12px;
+}
+
+/* ── Fade In Animation ────────────────────────────────── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* ── Table Dark Mode ──────────────────────────────────── */
+body.dark-mode .table {
+    color: var(--text-dark);
+}
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+    color: var(--text-dark);
+    background-color: rgba(255, 255, 255, 0.03);
+}
+body.dark-mode .table-hover > tbody > tr:hover > * {
+    background-color: rgba(99, 102, 241, 0.08);
+}
+
+/* ── Form Dark Mode ───────────────────────────────────── */
+body.dark-mode .form-control,
+body.dark-mode .input-group-text {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+body.dark-mode .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+    border-color: var(--primary);
+}
+body.dark-mode .input-group-text {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Badge improvements ───────────────────────────────── */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+/* ── Input focus glow ─────────────────────────────────── */
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.6); }
+
+/* ── Engine badge (sidebar) ───────────────────────────── */
+.engine-badge,
+.ai-badge {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    display: inline-block;
+}
+
+/* ── Login page background ────────────────────────────── */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 40%, #312e81 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-page::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+    top: -200px;
+    right: -100px;
+    pointer-events: none;
+}
+
+.login-page::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
+    bottom: -100px;
+    left: -80px;
+    pointer-events: none;
+}
+
+/* ── Engine status indicator ──────────────────────────── */
+.engine-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.engine-status.online {
+    background: rgba(40,167,69,0.12);
+    color: #28a745;
+    border: 1px solid rgba(40,167,69,0.3);
+}
+
+.engine-status.offline {
+    background: rgba(220,53,69,0.12);
+    color: #dc3545;
+    border: 1px solid rgba(220,53,69,0.3);
+}
+
+.engine-status .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.engine-status.online .status-dot {
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ── Engine stack (settings) ─────────────────────────── */
+.engine-stack-card {
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+body.dark-mode .engine-stack-card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.engine-stack-card.active-engine {
+    border-color: rgba(40, 167, 69, 0.35);
+    background: rgba(40, 167, 69, 0.06);
+}
+
+.engine-compare-table th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

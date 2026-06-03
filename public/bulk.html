@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Verify - Bulk Email Verifier</title>
+    <meta name="description" content="Upload CSV or XLSX and verify emails with truemail-go SMTP checks.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .ai-badge {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.08em;
+        }
+        .upload-zone {
+            border: 2px dashed rgba(99,102,241,0.4);
+            border-radius: 16px;
+            padding: 48px 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(99,102,241,0.03);
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.08);
+        }
+        .upload-zone i { font-size: 3rem; color: #6366f1; margin-bottom: 16px; }
+        .upload-zone p { margin: 0; font-weight: 600; }
+        .upload-zone small { color: #888; }
+        .results-table th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .trust-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 42px;
+            text-align: center;
+        }
+        .mini-stat-card {
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
+        <div class="px-4 mb-4 text-center">
+            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
+            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        </div>
+        <nav class="nav flex-column px-2">
+            <a class="nav-link" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
+            <a class="nav-link" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
+            <a class="nav-link active" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
+            <a class="nav-link" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
+            <hr class="text-secondary mx-3">
+            <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
+            <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2 class="fw-bold mb-1 fade-in">Bulk Email Verification</h2>
+        <p class="text-muted mb-4 fade-in" style="animation-delay:0.05s;">Upload CSV or XLSX — emails detected in any column. You can switch tabs — bulk jobs resume on this page.</p>
+
+        <div id="resumeBanner" class="col-lg-9 mx-auto d-none mb-3">
+            <div class="alert alert-info d-flex align-items-center justify-content-between mb-0 flex-wrap gap-2">
+                <span><i class="fa-solid fa-rotate me-2"></i><span id="resumeBannerText"></span></span>
+                <button type="button" class="btn btn-sm btn-primary" id="resumeJobBtn">Resume</button>
+            </div>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="col-lg-9 mx-auto fade-in" style="animation-delay:0.1s;">
+            <div class="glass-card p-4 mb-4">
+                <form id="uploadForm">
+                    <div id="dropZone" class="upload-zone mb-4">
+                        <i class="fa-solid fa-cloud-arrow-up d-block mb-2"></i>
+                        <p>Drag & Drop your file here or <label for="fileInput" class="text-primary" style="cursor:pointer;text-decoration:underline;">browse</label></p>
+                        <small>Supports .csv and .xlsx — email can be in any column</small>
+                        <input type="file" id="fileInput" accept=".csv, .xlsx" class="d-none" required>
+                    </div>
+                    <div id="fileNameDisplay" class="d-none mb-3 p-3 rounded-3" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);">
+                        <i class="fa-solid fa-file-csv me-2" style="color:#6366f1;"></i>
+                        <span id="fileNameText" class="fw-semibold"></span>
+                    </div>
+                    <button class="btn w-100 py-3 fw-bold text-white" type="submit" id="uploadBtn"
+                        style="background: linear-gradient(135deg, #6366f1, #a855f7); border: none; border-radius: 12px; font-size: 1.05rem;">
+                        <i class="fa-solid fa-bolt me-2"></i>Start Bulk Verification
+                    </button>
+                </form>
+
+                <!-- Progress Area -->
+                <div id="progressArea" class="mt-5 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">Progress <span id="aiNote" class="small text-muted fw-normal">(truemail-go SMTP per email)</span></span>
+                        <span id="progressText" class="fw-bold gradient-text">0 / 0</span>
+                    </div>
+                    <div class="progress mb-4">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+                    </div>
+
+                    <!-- Mini Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="mini-stat-card border border-success text-success">
+                                <div class="small fw-normal opacity-75">Valid</div>
+                                <div id="pValid">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="mini-stat-card border border-danger text-danger">
+                                <div class="small fw-normal opacity-75">Invalid</div>
+                                <div id="pInvalid">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="mini-stat-card border border-warning text-warning">
+                                <div class="small fw-normal opacity-75">Disposable</div>
+                                <div id="pDisposable">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="mini-stat-card border border-secondary text-secondary">
+                                <div class="small fw-normal opacity-75">SMTP Unavail.</div>
+                                <div id="pNoSmtp">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button id="exportBtn" class="btn btn-outline-success flex-grow-1 d-none">
+                            <i class="fa-solid fa-download me-2"></i>Export All Results (CSV)
+                        </button>
+                        <button id="exportValidBtn" class="btn btn-success flex-grow-1 d-none">
+                            <i class="fa-solid fa-check me-2"></i>Download Valid Only (CSV)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Results Table -->
+            <div id="resultsTableSection" class="d-none">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3">Live Results</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 results-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Email</th>
+                                    <th>Domain</th>
+                                    <th>Mailbox</th>
+                                    <th>Valid</th>
+                                    <th>SMTP Response</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/engine-ui.js"></script>
+    <script src="/js/bulk-job.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        const uploadForm    = document.getElementById('uploadForm');
+        const fileInput     = document.getElementById('fileInput');
+        const uploadBtn     = document.getElementById('uploadBtn');
+        const progressArea  = document.getElementById('progressArea');
+        const progressText  = document.getElementById('progressText');
+        const progressBar   = document.getElementById('progressBar');
+        const exportBtn     = document.getElementById('exportBtn');
+        const exportValidBtn = document.getElementById('exportValidBtn');
+        const dropZone      = document.getElementById('dropZone');
+
+        let results = [];
+        let fileRows = [];
+        let jobRunning = false;
+        const BATCH = 3;
+
+        BulkJob.guardNavigationWhileRunning();
+
+        function updateStatsUI(stats, total) {
+            document.getElementById('pValid').textContent = stats.valid;
+            document.getElementById('pInvalid').textContent = stats.invalid;
+            document.getElementById('pDisposable').textContent = stats.disposable;
+            document.getElementById('pNoSmtp').textContent = stats.noSmtp;
+            const pct = total ? Math.round((stats.completed / total) * 100) : 0;
+            progressBar.style.width = pct + '%';
+            progressText.textContent = `${stats.completed} / ${total}`;
+        }
+
+        function renderAllRows() {
+            document.getElementById('resultsTableBody').innerHTML = '';
+            rowIndex = 0;
+            results.forEach(item => addResultRow(item));
+        }
+
+        function syncResultsUI(job) {
+            const rows = job.fileRows || [];
+            results = [];
+            const stats = { valid: 0, invalid: 0, disposable: 0, noSmtp: 0, completed: 0 };
+            const map = job.verifyMap || {};
+
+            rows.forEach(row => {
+                const v = map[row.email];
+                if (!v) return;
+                const item = {
+                    email: row.email,
+                    originalRow: row.originalRow,
+                    domain_valid: !!v.domain_valid,
+                    mailbox_verified: v.mailbox_verified || 'no_smtp',
+                    valid: !!v.valid,
+                    smtp_response: v.smtp_response || '',
+                    status: v.status || 'invalid',
+                };
+                results.push(item);
+                stats.completed++;
+                if (item.valid) stats.valid++;
+                else if (item.status === 'disposable' || v.misc?.disposable) stats.disposable++;
+                else if (item.mailbox_verified === 'no_smtp') stats.noSmtp++;
+                else stats.invalid++;
+            });
+
+            job.results = results;
+            job.stats = stats;
+            document.getElementById('resultsTableBody').innerHTML = '';
+            rowIndex = 0;
+            results.forEach(item => addResultRow(item));
+            updateStatsUI(stats, rows.length);
+        }
+
+        async function runVerificationLoop(job) {
+            jobRunning = true;
+            const emails = job.emails || [];
+            let nextEmailIndex = job.nextEmailIndex || 0;
+            job.verifyMap = job.verifyMap || {};
+
+            progressArea.classList.remove('d-none');
+            document.getElementById('resultsTableSection').classList.remove('d-none');
+            uploadBtn.disabled = true;
+            fileInput.disabled = true;
+            job.status = 'running';
+            BulkJob.saveBulkJob(job);
+
+            while (nextEmailIndex < emails.length) {
+                const batch = emails.slice(nextEmailIndex, nextEmailIndex + BATCH);
+                try {
+                    const bulkRes = await axios.post('/api/verify/bulk', { emails: batch, source: 'bulk' }, { timeout: 300000 });
+                    for (const item of bulkRes.data.results) {
+                        job.verifyMap[item.email] = item;
+                    }
+                } catch (_) {
+                    for (const email of batch) {
+                        job.verifyMap[email] = { email, valid: false, domain_valid: false, mailbox_verified: 'no_smtp', status: 'error' };
+                    }
+                }
+                nextEmailIndex += batch.length;
+                job.nextEmailIndex = nextEmailIndex;
+                syncResultsUI(job);
+                BulkJob.saveBulkJob(job);
+            }
+
+            job.status = 'complete';
+            jobRunning = false;
+            BulkJob.saveBulkJob(job);
+            showToast('Bulk verification complete!', 'success');
+            exportBtn.classList.remove('d-none');
+            exportValidBtn.classList.remove('d-none');
+            uploadBtn.textContent = '🔄 Verify Another File';
+            uploadBtn.disabled = false;
+            fileInput.disabled = false;
+        }
+
+        async function resumeJob(job) {
+            fileRows = job.fileRows || [];
+            document.getElementById('fileNameText').textContent = job.fileName || 'Uploaded file';
+            document.getElementById('fileNameDisplay').classList.remove('d-none');
+            progressArea.classList.remove('d-none');
+            document.getElementById('resultsTableSection').classList.remove('d-none');
+            if (job.status === 'complete') {
+                syncResultsUI(job);
+                exportBtn.classList.remove('d-none');
+                exportValidBtn.classList.remove('d-none');
+                return;
+            }
+            await runVerificationLoop(job);
+        }
+
+        document.getElementById('resumeJobBtn')?.addEventListener('click', () => {
+            const job = BulkJob.loadBulkJob();
+            if (job) resumeJob(job);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const job = BulkJob.loadBulkJob();
+            if (!job) return;
+            const banner = document.getElementById('resumeBanner');
+            if (job.status === 'running') {
+                banner.classList.remove('d-none');
+                document.getElementById('resumeBannerText').textContent =
+                    `Paused bulk job: ${job.stats?.completed || 0} / ${job.fileRows?.length || 0} — click Resume`;
+                resumeJob(job);
+            } else if (job.status === 'complete' && job.results?.length) {
+                banner.classList.remove('d-none');
+                document.getElementById('resumeBannerText').textContent =
+                    `Last bulk run finished (${job.results.length} rows) — results restored`;
+                document.getElementById('resumeJobBtn').textContent = 'Show results';
+                fileRows = job.fileRows;
+                results = job.results;
+                renderAllRows();
+                progressArea.classList.remove('d-none');
+                if (job.stats) updateStatsUI(job.stats, fileRows.length);
+                exportBtn.classList.remove('d-none');
+                exportValidBtn.classList.remove('d-none');
+            }
+        });
+
+        /* ── File drag & drop ─────────────────────────── */
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileDisplay(e.dataTransfer.files[0].name);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) updateFileDisplay(fileInput.files[0].name);
+        });
+
+        function updateFileDisplay(name) {
+            document.getElementById('fileNameText').textContent = name;
+            document.getElementById('fileNameDisplay').classList.remove('d-none');
+        }
+
+        function ynBadge(val, yesClass = 'bg-success', noClass = 'bg-danger') {
+            return `<span class="badge ${val ? yesClass : noClass}">${val ? 'yes' : 'no'}</span>`;
+        }
+
+        function mailboxBadge(val) {
+            const map = { yes: 'bg-success', no: 'bg-danger', no_smtp: 'bg-warning text-dark' };
+            return `<span class="badge ${map[val] || 'bg-secondary'}">${val || '—'}</span>`;
+        }
+
+        function truncate(str, n = 48) {
+            if (!str) return '—';
+            return str.length > n ? str.slice(0, n) + '…' : str;
+        }
+
+        let rowIndex = 0;
+        function addResultRow(item) {
+            rowIndex++;
+            const tbody = document.getElementById('resultsTableBody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="text-muted small">${rowIndex}</td>
+                <td class="fw-medium">${item.email}</td>
+                <td>${ynBadge(item.domain_valid)}</td>
+                <td>${mailboxBadge(item.mailbox_verified)}</td>
+                <td>${ynBadge(item.valid)}</td>
+                <td class="small text-muted" title="${item.smtp_response || ''}">${truncate(item.smtp_response)}</td>
+            `;
+            tbody.appendChild(tr);
+            document.getElementById('resultsTableSection').classList.remove('d-none');
+        }
+
+        function buildCsv(rows, validOnly) {
+            const filtered = validOnly ? rows.filter(r => r.valid) : rows;
+            if (!filtered.length) return '';
+            const maxCols = Math.max(...filtered.map(r => (r.originalRow || []).length));
+            const origHeaders = Array.from({ length: maxCols }, (_, i) => `col_${i + 1}`);
+            const header = ['valid', 'mailbox_verified', 'domain_valid', 'email', ...origHeaders, 'smtp_response'].join(',');
+            const lines = [header];
+            filtered.forEach(r => {
+                const orig = r.originalRow || [];
+                const padded = origHeaders.map((_, i) => `"${String(orig[i] || '').replace(/"/g, '""')}"`);
+                lines.push([
+                    r.valid ? 'yes' : 'no',
+                    r.mailbox_verified || 'no_smtp',
+                    r.domain_valid ? 'yes' : 'no',
+                    `"${r.email}"`,
+                    ...padded,
+                    `"${String(r.smtp_response || '').replace(/"/g, '""')}"`,
+                ].join(','));
+            });
+            return lines.join('\n');
+        }
+
+        function downloadCsv(content, name) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        /* ── Form Submit ──────────────────────────────── */
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            if (!file) return;
+            if (jobRunning) {
+                showToast('A job is already running', 'warning');
+                return;
+            }
+
+            BulkJob.clearBulkJob();
+            exportBtn.classList.add('d-none');
+            exportValidBtn.classList.add('d-none');
+            document.getElementById('resultsTableBody').innerHTML = '';
+            rowIndex = 0;
+            results = [];
+            fileRows = [];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showToast('Parsing file...', 'info');
+                const res = await axios.post('/api/verify/upload-bulk', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+
+                const { emails, rows } = res.data;
+                fileRows = rows || [];
+                if (!emails?.length) {
+                    showToast('No valid emails found in file', 'error');
+                    resetUI();
+                    return;
+                }
+
+                updateFileDisplay(file.name);
+                showToast(`Found ${emails.length} unique emails (${fileRows.length} rows). Verifying...`, 'info');
+
+                const job = {
+                    status: 'running',
+                    fileName: file.name,
+                    fileRows,
+                    emails,
+                    verifyMap: {},
+                    nextEmailIndex: 0,
+                    results: [],
+                    stats: { valid: 0, invalid: 0, disposable: 0, noSmtp: 0, completed: 0 },
+                    startedAt: Date.now(),
+                };
+                BulkJob.saveBulkJob(job);
+                await runVerificationLoop(job);
+            } catch (err) {
+                showToast(err.response?.data?.message || 'Upload failed', 'error');
+                resetUI();
+            }
+        });
+
+        function resetUI() {
+            uploadBtn.disabled = false;
+            fileInput.disabled = false;
+        }
+
+        exportBtn.addEventListener('click', () => {
+            if (!results.length) return;
+            const csv = buildCsv(results, false);
+            downloadCsv(csv, `email_verification_all_${new Date().toISOString().slice(0,10)}.csv`);
+        });
+
+        exportValidBtn.addEventListener('click', () => {
+            const validRows = results.filter(r => r.valid);
+            if (!validRows.length) {
+                showToast('No valid emails to export', 'warning');
+                return;
+            }
+            const csv = buildCsv(results, true);
+            downloadCsv(csv, `email_verification_valid_${new Date().toISOString().slice(0,10)}.csv`);
+        });
+    </script>
+</body>
+</html>

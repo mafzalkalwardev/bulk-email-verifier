@@ -1,0 +1,17 @@
+# Free self-hosted email verifier — Reacher (recommended when truemail-go is slow or flaky)
+# Usage: docker compose up -d
+# Then set in .env: VERIFIER_ENGINE=reacher
+
+services:
+  reacher:
+    image: reacherhq/backend:latest
+    container_name: email-verifier-reacher
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    environment:
+      RUST_LOG: info
+    # Optional SMTP proxy if port 25 is blocked on your PC:
+    # environment:
+    #   REACHER_PROXY_HOST: host.docker.internal
+    #   REACHER_PROXY_PORT: 1080

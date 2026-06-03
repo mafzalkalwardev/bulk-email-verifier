@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Secrets & local config
+.env
+.env.local
+.env.*.local
+
+# Runtime / uploads
+uploads/
+.cache/
+mongodb-memory-server/
+
+# Go build output
+backend/go/verifier.exe
+backend/go/verifier
+*.exe
+
+# Legacy / unused backends
+backend/python/
+**/__pycache__/
+*.pyc
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Test artifacts
+coverage/
+*.test

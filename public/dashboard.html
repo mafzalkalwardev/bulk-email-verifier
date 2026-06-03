@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bulk Email Verifier</title>
+    <meta name="description" content="Email verification dashboard with bulk insights and SMTP diagnostics.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-card .stat-icon {
+            position: absolute;
+            right: 20px; top: 20px;
+            font-size: 2.5rem;
+            opacity: 0.12;
+        }
+        .stat-card .stat-num { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+        .stat-card .stat-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+        .ai-badge {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.08em;
+        }
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.03);
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        body.dark-mode .insight-item { background: rgba(255,255,255,0.04); }
+        .insight-item:hover { background: rgba(99,102,241,0.07); }
+        .insight-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+        .quick-action {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; border-radius: 14px; text-decoration: none; transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .quick-action:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.4); text-decoration: none; }
+        .quick-action i { font-size: 1.8rem; margin-bottom: 8px; }
+        .quick-action span { font-size: 0.85rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
+        <div class="px-4 mb-4 text-center">
+            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
+            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        </div>
+        <nav class="nav flex-column px-2">
+            <a class="nav-link active" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
+            <a class="nav-link" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
+            <a class="nav-link" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
+            <a class="nav-link" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
+            
+            <hr class="text-secondary mx-3">
+            <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
+            <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Greeting -->
+        <div class="d-flex justify-content-between align-items-center mb-1 fade-in">
+            <h2 class="fw-bold mb-0">Welcome back, <span id="userNameDisplay" class="gradient-text"></span>! 👋</h2>
+        </div>
+        <p class="text-muted mb-4 fade-in" style="animation-delay:0.05s;">Your bulk email verification overview.</p>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4 fade-in" style="animation-delay: 0.1s;">
+            <div class="col-6 col-md-3">
+                <div class="glass-card stat-card" style="border-left:4px solid #6366f1;">
+                    <i class="fa-solid fa-envelope-open stat-icon"></i>
+                    <div class="stat-label">Total Verified</div>
+                    <div class="stat-num gradient-text" id="statTotal">–</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="glass-card stat-card" style="border-left:4px solid #28a745;">
+                    <i class="fa-solid fa-circle-check stat-icon text-success"></i>
+                    <div class="stat-label">Valid Emails</div>
+                    <div class="stat-num text-success" id="statValid">–</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="glass-card stat-card" style="border-left:4px solid #dc3545;">
+                    <i class="fa-solid fa-circle-xmark stat-icon text-danger"></i>
+                    <div class="stat-label">Invalid / Bad</div>
+                    <div class="stat-num text-danger" id="statInvalid">–</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="glass-card stat-card" style="border-left:4px solid #ffc107;">
+                    <i class="fa-solid fa-circle-question stat-icon text-warning"></i>
+                    <div class="stat-label">Unknown</div>
+                    <div class="stat-num text-warning" id="statUnknown">–</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart + AI Insights -->
+        <div class="row g-4 mb-4 fade-in" style="animation-delay: 0.2s;">
+            <!-- Doughnut Chart -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="mb-4 fw-bold"><i class="fa-solid fa-chart-pie me-2 gradient-text"></i>Verification Overview</h5>
+                    <div style="height: 260px; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="statsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Engine Insights -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <i class="fa-solid fa-bolt" style="color:#6366f1;font-size:1.2rem;"></i>
+                        <h5 class="mb-0 fw-bold">Verification Engine</h5>
+                        <span class="engine-badge ms-1" data-engine-badge>truemail-go</span>
+                    </div>
+                    <div id="aiInsightsContainer">
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background:rgba(99,102,241,0.12);color:#6366f1;">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">SMTP Diagnostics</div>
+                                <div class="text-muted" style="font-size:0.8rem;">Each email gets syntax, MX, and SMTP RCPT checks with server responses.</div>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background:rgba(40,167,69,0.12);color:#28a745;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Multi-Layer Validation</div>
+                                <div class="text-muted" style="font-size:0.8rem;">Syntax → MX Records → Disposable Detection → Reachability checks.</div>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background:rgba(220,53,69,0.12);color:#dc3545;">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Disposable Email Detection</div>
+                                <div class="text-muted" style="font-size:0.8rem;">Identifies temp-mail, throwaway, and suspicious domain patterns.</div>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background:rgba(255,193,7,0.12);color:#c69500;">
+                                <i class="fa-solid fa-file-csv"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Bulk CSV / XLSX Support</div>
+                                <div class="text-muted" style="font-size:0.8rem;">Upload hundreds of emails — verified in batches and exported to CSV.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3 fade-in" style="animation-delay: 0.3s;">
+            <div class="col-12 mb-1">
+                <h5 class="fw-bold">Quick Actions</h5>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/single.html" class="quick-action glass-card text-center">
+                    <i class="fa-solid fa-magnifying-glass gradient-text"></i>
+                    <span>Single Verify</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/bulk.html" class="quick-action glass-card text-center">
+                    <i class="fa-solid fa-file-csv" style="color:#6366f1;"></i>
+                    <span>Bulk Upload</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/history.html" class="quick-action glass-card text-center">
+                    <i class="fa-solid fa-clock-rotate-left" style="color:#a855f7;"></i>
+                    <span>View History</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/settings.html" class="quick-action glass-card text-center">
+                    <i class="fa-solid fa-gear text-muted"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/engine-ui.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await axios.get('/api/history/stats');
+                const { total, valid, invalid, unknown } = res.data;
+
+                document.getElementById('statTotal').innerText   = total;
+                document.getElementById('statValid').innerText   = valid;
+                document.getElementById('statInvalid').innerText = invalid;
+                document.getElementById('statUnknown').innerText = unknown;
+
+                // Doughnut Chart
+                const isDark = document.body.classList.contains('dark-mode');
+                const ctx = document.getElementById('statsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Valid', 'Invalid / Bad', 'Unknown'],
+                        datasets: [{
+                            data: [valid, invalid, unknown],
+                            backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                            borderWidth: 3,
+                            borderColor: isDark ? '#1e1e1e' : '#fff',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: isDark ? '#f0f0f0' : '#333',
+                                    padding: 20,
+                                    font: { family: 'Inter', weight: '600' }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                showToast('Failed to load stats', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

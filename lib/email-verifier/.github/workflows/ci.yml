@@ -1,0 +1,44 @@
+name: CI Actions  # don't edit while the badge was depend on this
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-build-test:
+    name: Lint/Test
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22.x']
+
+    steps:
+
+      - name: Checkout Code Base
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{matrix.go-version}}
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.2.1
+          only-new-issues: true
+
+      - name: Test
+        run: make test
+
+
+
+

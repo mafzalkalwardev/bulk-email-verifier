@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Bulk Email Verifier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
+        <div class="px-4 mb-4 text-center">
+            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
+            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        </div>
+        <nav class="nav flex-column px-2">
+            <a class="nav-link" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
+            <a class="nav-link" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
+            <a class="nav-link" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
+            <a class="nav-link" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
+            <a class="nav-link active" href="/settings.html"><i class="fa-solid fa-gear me-2"></i> Settings</a>
+            <hr class="text-secondary mx-3">
+            <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
+            <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <h2 class="fw-bold mb-1 fade-in">Settings</h2>
+        <p class="text-muted mb-4">Engine status, stack overview, and profile</p>
+
+        <div class="row g-4 fade-in">
+            <div class="col-lg-5">
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="mb-4 fw-bold"><i class="fa-solid fa-user me-2 gradient-text"></i>Profile</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="profileName" disabled>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="profileEmail" disabled>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4">
+                    <h5 class="mb-3 fw-bold"><i class="fa-solid fa-plug me-2 gradient-text"></i>Connection</h5>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li class="mb-2"><strong class="text-body">UI:</strong> <a href="http://localhost:5000" target="_blank">http://localhost:5000</a></li>
+                        <li class="mb-2"><strong class="text-body">API:</strong> <code id="goApiUrl">http://localhost:8080</code> (internal)</li>
+                        <li><strong class="text-body">SMTP:</strong> Direct port 25 (no proxy required on most home networks)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="mb-3 fw-bold"><i class="fa-solid fa-server me-2 gradient-text"></i>Active verification stack</h5>
+                    <div id="goEngineStatus" class="engine-status offline mb-3">
+                        <span class="status-dot"></span>
+                        <span id="goStatusText">Checking verifier...</span>
+                    </div>
+                    <p id="goStatusDetail" class="text-muted small mb-4"></p>
+
+                    <div class="engine-stack-card active-engine mb-3">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <span class="badge bg-success mb-2">PRIMARY — IN USE</span>
+                                <h6 class="fw-bold mb-1">truemail-go</h6>
+                                <p class="small text-muted mb-0">Syntax → MX records → SMTP RCPT TO. Captures full server responses (e.g. <code>550 5.1.1</code> for fake Gmail addresses). This is the engine that decides <strong>valid yes/no</strong>.</p>
+                            </div>
+                            <i class="fa-solid fa-star text-warning fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="engine-stack-card helper-engine mb-3">
+                        <div>
+                            <span class="badge bg-secondary mb-2">HELPER — IN USE</span>
+                            <h6 class="fw-bold mb-1">AfterShip email-verifier</h6>
+                            <p class="small text-muted mb-0">Local lists only: disposable domains, role accounts, free providers. <strong>Does not</strong> replace SMTP — truemail-go handles mailbox proof.</p>
+                        </div>
+                    </div>
+
+                    <button id="refreshHealthBtn" class="btn btn-sm btn-outline-primary">
+                        <i class="fa-solid fa-rotate me-1"></i> Refresh Status
+                    </button>
+                </div>
+
+                <div class="glass-card p-4">
+                    <h5 class="mb-3 fw-bold"><i class="fa-solid fa-scale-balanced me-2 gradient-text"></i>Why this stack? (not used in this app)</h5>
+                    <p class="small text-muted">We evaluated everything in your workspace. <strong>truemail-go</strong> is the best fit for self-hosted bulk verify with verify-email.org-style SMTP reports.</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0 engine-compare-table">
+                            <thead>
+                                <tr>
+                                    <th>Library</th>
+                                    <th>SMTP dialog</th>
+                                    <th>In this app</th>
+                                </tr>
+                            </thead>
+                            <tbody id="engineCompareBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/engine-ui.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        function renderCompareTable() {
+            const tbody = document.getElementById('engineCompareBody');
+            const rows = [
+                { name: 'Reacher (Docker)', smtp: 'Yes — best for bulk', used: 'Yes (recommended)', cls: 'table-success' },
+                { name: 'truemail-go', smtp: 'Yes — full RCPT + codes', used: 'Yes (built-in)', cls: '' },
+                { name: 'AfterShip email-verifier', smtp: 'Lists only', used: 'Yes (with truemail)', cls: '' },
+                { name: 'validate_email', smtp: 'No', used: 'No', cls: '' },
+                { name: 'KnowEmail.exe', smtp: 'Partial', used: 'No — desktop only', cls: '' },
+                { name: 'Paid SaaS APIs', smtp: 'Cloud', used: 'No — self-hosted only', cls: '' },
+            ];
+            tbody.innerHTML = rows.map(r => `
+                <tr class="${r.cls}">
+                    <td class="fw-medium">${r.name}</td>
+                    <td>${r.smtp}</td>
+                    <td>${r.used}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function checkEngineHealth() {
+            const el = document.getElementById('goEngineStatus');
+            const text = document.getElementById('goStatusText');
+            const detail = document.getElementById('goStatusDetail');
+            try {
+                const res = await axios.get('/api/verify/health');
+                const d = res.data;
+                const active = d.active_engine;
+                const online = d.go || d.reacher;
+
+                if (online && active) {
+                    el.className = 'engine-status online mb-3';
+                    text.textContent = `Active engine: ${active}`;
+                    const parts = [];
+                    if (d.reacher) parts.push(`Reacher ${d.reacher_url || '8081'} ✓`);
+                    if (d.go) parts.push(`truemail-go ${d.go_url || '8082'} ✓`);
+                    detail.innerHTML = `
+                        <strong>Mode:</strong> ${d.mode || 'auto'} — verifications use <code>${active}</code>.<br>
+                        ${parts.join(' · ')}<br>
+                        <strong>Best free setup:</strong> install <a href="https://www.docker.com/products/docker-desktop/" target="_blank">Docker Desktop</a>, run <code>docker compose up -d</code>, set <code>VERIFIER_ENGINE=reacher</code> in .env, restart npm.
+                    `;
+                } else {
+                    el.className = 'engine-status offline mb-3';
+                    text.textContent = 'No verifier running';
+                    detail.innerHTML = `Run <code>npm start</code> (truemail-go) or <code>docker compose up -d</code> then <code>npm start</code> (Reacher, recommended for bulk).`;
+                }
+            } catch {
+                el.className = 'engine-status offline mb-3';
+                text.textContent = 'Cannot reach API — log in first';
+                detail.textContent = 'Settings health check requires you to be logged in.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('profileName').value = user.name || '';
+            document.getElementById('profileEmail').value = user.email || '';
+            renderCompareTable();
+            checkEngineHealth();
+        });
+
+        document.getElementById('refreshHealthBtn').addEventListener('click', checkEngineHealth);
+    </script>
+</body>
+</html>

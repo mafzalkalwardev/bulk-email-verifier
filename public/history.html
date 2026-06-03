@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Bulk Email Verifier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
+        <div class="px-4 mb-4 text-center">
+            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
+            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        </div>
+        <nav class="nav flex-column px-2">
+            <a class="nav-link" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
+            <a class="nav-link" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
+            <a class="nav-link" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
+            <a class="nav-link active" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
+            
+            <hr class="text-secondary mx-3">
+            <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
+            <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+            <h2 class="fw-bold">Validation History</h2>
+            <div class="w-25">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search emails...">
+            </div>
+        </div>
+
+        <div class="glass-card p-4 fade-in" style="animation-delay: 0.1s;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr><td colspan="4" class="text-center">Loading history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div class="d-flex justify-content-between align-items-center mt-3 d-none" id="paginationControls">
+                <button class="btn btn-sm btn-outline-secondary" id="prevBtn">Previous</button>
+                <span class="text-muted small">Page <span id="pageSpan">1</span> of <span id="totalPagesSpan">1</span></span>
+                <button class="btn btn-sm btn-outline-secondary" id="nextBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/engine-ui.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        let fullHistory = [];
+        let filteredHistory = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await axios.get('/api/history');
+                fullHistory = res.data;
+                filteredHistory = [...fullHistory];
+                renderTable();
+            } catch (err) {
+                document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading history</td></tr>';
+                showToast('Failed to load history', 'error');
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            filteredHistory = fullHistory.filter(h => h.email.toLowerCase().includes(term) || h.status.toLowerCase().includes(term));
+            currentPage = 1;
+            renderTable();
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if(currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+            if(currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('historyBody');
+            tbody.innerHTML = '';
+            
+            if(filteredHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No records found.</td></tr>';
+                document.getElementById('paginationControls').classList.add('d-none');
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+            document.getElementById('pageSpan').innerText = currentPage;
+            document.getElementById('totalPagesSpan').innerText = totalPages;
+            document.getElementById('paginationControls').classList.remove('d-none');
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const paginated = filteredHistory.slice(startIdx, startIdx + itemsPerPage);
+
+            paginated.forEach(record => {
+                const tr = document.createElement('tr');
+                
+                // Status Badge styling
+                let badgeClass = 'bg-secondary';
+                const status = record.status.toLowerCase();
+                if(status === 'ok' || status === 'valid') badgeClass = 'bg-success';
+                else if(status === 'fail' || status === 'error' || status === 'invalid') badgeClass = 'bg-danger';
+                else if(status === 'disposable' || status === 'catch_all') badgeClass = 'bg-warning text-dark';
+
+                tr.innerHTML = `
+                    <td class="fw-medium">${record.email}</td>
+                    <td><span class="badge ${badgeClass}">${record.status.toUpperCase()}</span></td>
+                    <td><span class="badge bg-light text-dark border">${record.source.toUpperCase()}</span></td>
+                    <td class="text-muted small">${new Date(record.timestamp).toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>

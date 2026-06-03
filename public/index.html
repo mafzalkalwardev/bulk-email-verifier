@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Email Verifier - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <div class="login-page">
+        <div class="glass-card p-5" style="width: 100%; max-width: 420px; z-index: 1; margin: 16px;">
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="fa-solid fa-envelope-circle-check fa-3x gradient-text"></i>
+                </div>
+                <h2 class="gradient-text fw-bold mb-1">Bulk Email Verifier</h2>
+                <span class="engine-badge" data-engine-badge>truemail-go</span>
+                <p class="text-muted mt-3 mb-0 small">Bulk email verification powered by Go</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email address</label>
+                    <input type="email" class="form-control" id="email" required placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="password" required placeholder="Your password">
+                </div>
+                <button type="submit" class="btn w-100 py-2 fw-bold text-white" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 10px;">
+                    Sign In
+                </button>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Need an account? <a href="#" id="toggleRegister" class="text-decoration-none">Register</a></small>
+                </div>
+            </form>
+
+            <form id="registerForm" class="d-none">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Name</label>
+                    <input type="text" class="form-control" id="regName" required placeholder="John Doe">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email address</label>
+                    <input type="email" class="form-control" id="regEmail" required placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="regPassword" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="border: none; border-radius: 10px;">
+                    Create Account
+                </button>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Already have an account? <a href="#" id="toggleLogin" class="text-decoration-none">Sign In</a></small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/engine-ui.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        document.getElementById('toggleRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('d-none');
+            registerForm.classList.remove('d-none');
+        });
+
+        document.getElementById('toggleLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.classList.add('d-none');
+            loginForm.classList.remove('d-none');
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const res = await axios.post('/api/auth/login', {
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                });
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify({ name: res.data.name, email: res.data.email }));
+                window.location.href = '/dashboard.html';
+            } catch (err) {
+                showToast(err.response?.data?.message || 'Login failed', 'error');
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const res = await axios.post('/api/auth/register', {
+                    name: document.getElementById('regName').value,
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPassword').value,
+                });
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify({ name: res.data.name, email: res.data.email }));
+                window.location.href = '/dashboard.html';
+            } catch (err) {
+                showToast(err.response?.data?.message || 'Registration failed', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
