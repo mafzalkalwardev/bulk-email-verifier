@@ -134,8 +134,9 @@ async function verifyWithReacher(email) {
         } catch (_) {}
     }
 
+    const timeout = parseInt(process.env.REACHER_TIMEOUT_MS || '45000', 10);
     const { data } = await axios.post(`${REACHER_BASE}/v0/check_email`, body, {
-        timeout: 120000,
+        timeout,
     });
     return mapReacherToReport(data, email);
 }

@@ -1,17 +1,17 @@
 const axios = require('axios');
-const { verifyWithReacher, checkReacherHealth, REACHER_BASE } = require('./reacherClient');
+const { mapReacherToReport, checkReacherHealth, REACHER_BASE } = require('./reacherClient');
+const { ensureGoVerifier } = require('./spawnGo');
 
 const GO_BASE = process.env.GO_VERIFIER_URL || 'http://localhost:8080';
-const ENGINE_MODE = (process.env.VERIFIER_ENGINE || 'auto').toLowerCase();
-const REACHER_TIMEOUT = parseInt(process.env.REACHER_TIMEOUT_MS || '60000', 10);
+const ENGINE_MODE = (process.env.VERIFIER_ENGINE || 'truemail').toLowerCase();
+const REACHER_TIMEOUT = parseInt(process.env.REACHER_TIMEOUT_MS || '45000', 10);
 
 let cachedEngine = null;
 
 async function verifyWithGo(email) {
     const url = `${GO_BASE}/v1/${encodeURIComponent(email)}/verification`;
     const { data } = await axios.get(url, { timeout: 120000 });
-    if (data.engine !== undefined) return data;
-    return { ...data, engine: 'truemail-go' };
+    return { ...data, engine: data.engine || 'truemail-go' };
 }
 
 function mapStatus(report) {
@@ -51,33 +51,43 @@ async function isTruemailUp() {
     }
 }
 
+async function ensureTruemailReady() {
+    if (!(await isTruemailUp())) {
+        await ensureGoVerifier();
+        for (let i = 0; i < 15; i++) {
+            if (await isTruemailUp()) return true;
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+    return isTruemailUp();
+}
+
 async function resolveEngine() {
-    if (ENGINE_MODE === 'truemail') return 'truemail-go';
-    if (ENGINE_MODE === 'reacher') {
-        if (await checkReacherHealth()) return 'reacher';
-        if (await isTruemailUp()) {
-            console.warn('⚠️  Reacher down — using truemail-go');
+    // Default & auto: truemail-go only (fast, works on Gmail in ~15s)
+    if (ENGINE_MODE === 'truemail' || ENGINE_MODE === 'auto') {
+        if (await ensureTruemailReady()) {
+            cachedEngine = 'truemail-go';
             return 'truemail-go';
         }
-        throw new Error('Reacher not running. Run: docker compose up -d');
+        throw new Error('truemail-go not running. Restart with: npm start');
+    }
+
+    if (ENGINE_MODE === 'reacher') {
+        if (await checkReacherHealth()) {
+            cachedEngine = 'reacher';
+            return 'reacher';
+        }
+        console.warn('⚠️  Reacher unavailable — using truemail-go');
+        if (await ensureTruemailReady()) return 'truemail-go';
+        throw new Error('Reacher down. Run: docker compose up -d  OR  npm start');
     }
 
     if (cachedEngine) return cachedEngine;
-
-    // auto: truemail-go first (fast SMTP; Reacher can hang 2+ min on Gmail)
-    if (await isTruemailUp()) {
+    if (await ensureTruemailReady()) {
         cachedEngine = 'truemail-go';
-        console.log('✅ Using truemail-go engine at', GO_BASE);
         return cachedEngine;
     }
-
-    if (await checkReacherHealth()) {
-        cachedEngine = 'reacher';
-        console.log('✅ Using Reacher engine at', REACHER_BASE);
-        return cachedEngine;
-    }
-
-    throw new Error('No verifier available. Run: npm start  (and optionally docker compose up -d)');
+    throw new Error('No verifier available. Run: npm start');
 }
 
 async function verifyWithReacherTimed(email) {
@@ -98,7 +108,6 @@ async function verifyWithReacherTimed(email) {
     const { data } = await axios.post(`${REACHER_BASE}/v0/check_email`, body, {
         timeout: REACHER_TIMEOUT,
     });
-    const { mapReacherToReport } = require('./reacherClient');
     return mapReacherToReport(data, email);
 }
 
@@ -113,21 +122,22 @@ async function verifyEmailCombined(email) {
             report = await verifyWithGo(email);
         }
     } catch (primaryErr) {
-        const isTimeout =
-            primaryErr.code === 'ECONNABORTED' ||
-            String(primaryErr.message).includes('timeout');
+        const failedReacher = engine === 'reacher';
+        const canFallback =
+            failedReacher &&
+            (primaryErr.code === 'ECONNABORTED' || String(primaryErr.message).includes('timeout'));
 
-        if (engine === 'reacher' && (isTimeout || primaryErr.message) && (await isTruemailUp())) {
-            console.warn(`Reacher slow/failed for ${email}, falling back to truemail-go`);
-            report = await verifyWithGo(email);
-            report.engine = 'truemail-go';
-            report.fallback_from = 'reacher';
+        if (canFallback || failedReacher) {
+            if (await ensureTruemailReady()) {
+                console.warn(`Reacher failed for ${email} — using truemail-go`);
+                report = await verifyWithGo(email);
+                report.engine = 'truemail-go';
+                report.fallback_from = 'reacher';
+            } else {
+                throw new Error(`Reacher failed: ${primaryErr.message}. truemail-go is not running.`);
+            }
         } else {
-            throw new Error(
-                engine === 'reacher'
-                    ? `Reacher failed: ${primaryErr.message}`
-                    : `truemail-go failed: ${primaryErr.message}`
-            );
+            throw new Error(`truemail-go failed: ${primaryErr.message}`);
         }
     }
 
@@ -158,7 +168,7 @@ async function checkBackendHealth() {
     try {
         health.active_engine = await resolveEngine();
     } catch (_) {
-        health.active_engine = null;
+        health.active_engine = health.go ? 'truemail-go' : null;
     }
 
     return health;

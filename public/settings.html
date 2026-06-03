@@ -153,7 +153,7 @@
                     detail.innerHTML = `
                         <strong>Mode:</strong> ${d.mode || 'auto'} — verifications use <code>${active}</code>.<br>
                         ${parts.join(' · ')}<br>
-                        <strong>Best free setup:</strong> install <a href="https://www.docker.com/products/docker-desktop/" target="_blank">Docker Desktop</a>, run <code>docker compose up -d</code>, set <code>VERIFIER_ENGINE=reacher</code> in .env, restart npm.
+                        <strong>Recommended:</strong> <code>VERIFIER_ENGINE=truemail</code> in .env (fast). Docker Reacher is optional and slow on Gmail.
                     `;
                 } else {
                     el.className = 'engine-status offline mb-3';

@@ -6,6 +6,7 @@ const path = require('path');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middlewares/errorMiddleware');
 const { ensureGoVerifier, stopGoVerifier } = require('./utils/spawnGo');
+const { resetEngineCache } = require('./utils/verificationEngine');
 
 dotenv.config();
 
@@ -30,9 +31,11 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 async function start() {
+    resetEngineCache();
     console.log('📦 Connecting to database...');
     await connectDB();
 
+    console.log('🔧 Starting truemail-go verifier (required)...');
     await ensureGoVerifier();
 
     app.listen(PORT, () => {

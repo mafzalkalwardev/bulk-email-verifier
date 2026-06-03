@@ -3,7 +3,6 @@ const path = require('path');
 const axios = require('axios');
 
 const GO_BASE = process.env.GO_VERIFIER_URL || 'http://localhost:8080';
-const ENGINE_MODE = (process.env.VERIFIER_ENGINE || 'auto').toLowerCase();
 
 let goProcess = null;
 
@@ -28,24 +27,17 @@ function goPortFromEnv() {
 async function isGoHealthy() {
     try {
         const { data } = await axios.get(`${GO_BASE}/health`, { timeout: 3000 });
-        return data?.status === 'ok' && String(data?.engine || '').includes('truemail');
+        return data?.status === 'ok';
     } catch {
         return false;
     }
 }
 
 async function ensureGoVerifier() {
-    if (ENGINE_MODE === 'reacher') {
-        console.log('ℹ️  VERIFIER_ENGINE=reacher — skipping Go auto-start');
-        return;
-    }
-
-    if (!isLocalGoUrl()) {
-        return;
-    }
+    if (!isLocalGoUrl()) return;
 
     if (await isGoHealthy()) {
-        console.log('✅ truemail-go verifier already running at', GO_BASE);
+        console.log('✅ truemail-go ready at', GO_BASE);
         return;
     }
 
@@ -64,7 +56,7 @@ async function ensureGoVerifier() {
         console.error('❌ Failed to start Go verifier:', err.message);
     });
 
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 30; i++) {
         await new Promise(r => setTimeout(r, 1000));
         if (await isGoHealthy()) {
             console.log('✅ truemail-go ready at', GO_BASE);
@@ -72,7 +64,7 @@ async function ensureGoVerifier() {
         }
     }
 
-    console.warn('⚠️  truemail-go did not respond — try: docker compose up -d (Reacher)');
+    console.warn('⚠️  truemail-go did not respond — install Go 1.22+ from https://go.dev/dl/');
 }
 
 function stopGoVerifier() {
@@ -82,4 +74,4 @@ function stopGoVerifier() {
     }
 }
 
-module.exports = { ensureGoVerifier, stopGoVerifier };
+module.exports = { ensureGoVerifier, stopGoVerifier, isGoHealthy };
