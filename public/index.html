@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulk Email Verifier - Login</title>
+    <meta name="description" content="Self-hosted bulk email verification with SMTP diagnostics.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#6366f1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,12 +19,10 @@
     <div class="login-page">
         <div class="glass-card p-5" style="width: 100%; max-width: 420px; z-index: 1; margin: 16px;">
             <div class="text-center mb-4">
-                <div class="mb-3">
-                    <i class="fa-solid fa-envelope-circle-check fa-3x gradient-text"></i>
-                </div>
+                <img src="/favicon.svg" alt="" class="login-brand-icon" width="64" height="64">
                 <h2 class="gradient-text fw-bold mb-1">Bulk Email Verifier</h2>
                 <span class="engine-badge" data-engine-badge>truemail-go</span>
-                <p class="text-muted mt-3 mb-0 small">Bulk email verification powered by Go</p>
+                <p class="text-muted mt-3 mb-0 small">Self-hosted SMTP verification — syntax, MX &amp; mailbox checks</p>
             </div>
 
             <form id="loginForm">
@@ -32,7 +34,7 @@
                     <label class="form-label fw-semibold">Password</label>
                     <input type="password" class="form-control" id="password" required placeholder="Your password">
                 </div>
-                <button type="submit" class="btn w-100 py-2 fw-bold text-white" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 10px;">
+                <button type="submit" class="btn btn-brand w-100 py-2">
                     Sign In
                 </button>
                 <div class="text-center mt-3">

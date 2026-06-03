@@ -19,6 +19,9 @@
 /* ── Base ─────────────────────────────────────────────── */
 body {
     background-color: var(--bg-light);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99, 102, 241, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(168, 85, 247, 0.06), transparent);
     color: var(--text-light);
     font-family: 'Inter', sans-serif;
     transition: background-color 0.3s, color 0.3s;
@@ -27,6 +30,9 @@ body {
 
 body.dark-mode {
     background-color: var(--bg-dark);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99, 102, 241, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(168, 85, 247, 0.08), transparent);
     color: var(--text-dark);
 }
 
@@ -53,14 +59,16 @@ body.dark-mode .glass-card {
     position: fixed;
     top: 0;
     left: 0;
-    width: 240px;
+    width: 252px;
     padding-top: 24px;
     z-index: 1000;
     border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-content {
-    margin-left: 240px;
+    margin-left: 252px;
     padding: 28px 32px;
 }
 
@@ -136,30 +144,99 @@ body.dark-mode .progress {
 
 /* ── Table Dark Mode ──────────────────────────────────── */
 body.dark-mode .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-dark);
+    --bs-table-border-color: rgba(255, 255, 255, 0.08);
+    --bs-table-hover-bg: rgba(99, 102, 241, 0.1);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+    --bs-table-active-bg: rgba(99, 102, 241, 0.12);
     color: var(--text-dark);
 }
+
+body.dark-mode .table > :not(caption) > * > * {
+    background-color: transparent;
+    color: var(--text-dark);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+
+body.dark-mode .table thead th {
+    color: rgba(232, 234, 246, 0.85);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
 body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
     color: var(--text-dark);
     background-color: rgba(255, 255, 255, 0.03);
 }
+
 body.dark-mode .table-hover > tbody > tr:hover > * {
-    background-color: rgba(99, 102, 241, 0.08);
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--text-dark);
+}
+
+body.dark-mode .table .text-muted {
+    color: rgba(232, 234, 246, 0.55) !important;
 }
 
 /* ── Form Dark Mode ───────────────────────────────────── */
 body.dark-mode .form-control,
 body.dark-mode .input-group-text {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: var(--border-dark);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
     color: var(--text-dark);
 }
+
+body.dark-mode .form-control::placeholder {
+    color: rgba(232, 234, 246, 0.42);
+    opacity: 1;
+}
+
 body.dark-mode .form-control:focus {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
     border-color: var(--primary);
 }
+
 body.dark-mode .input-group-text {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(232, 234, 246, 0.55);
+}
+
+body.dark-mode .text-muted {
+    color: rgba(232, 234, 246, 0.58) !important;
+}
+
+body.dark-mode .badge.bg-light,
+body.dark-mode .badge.bg-light.text-dark {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: var(--text-dark) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: rgba(232, 234, 246, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+body.dark-mode .form-check-input {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+body.dark-mode hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
 }
 
 /* ── Badge improvements ───────────────────────────────── */
@@ -291,4 +368,143 @@ body.dark-mode .engine-stack-card {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* ── Brand / favicon sidebar ─────────────────────────── */
+.sidebar-brand {
+    padding: 0 12px;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+
+.brand-link:hover {
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.brand-icon {
+    flex-shrink: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+}
+
+.brand-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.brand-badge {
+    font-size: 0.62rem !important;
+    padding: 2px 8px !important;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 12px 16px 20px;
+    border-top: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+body.dark-mode .sidebar-footer {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar nav {
+    flex: 1;
+}
+
+/* ── Page header ─────────────────────────────────────── */
+.page-header {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+body.dark-mode .page-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.page-header h2 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.page-header .page-subtitle {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+body.dark-mode .page-header .page-subtitle {
+    color: rgba(232, 234, 246, 0.65);
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn-brand {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    color: #fff !important;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-brand:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    color: #fff !important;
+}
+
+.input-group .btn-brand {
+    border-radius: 0 10px 10px 0;
+}
+
+.login-brand-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.45);
+    margin-bottom: 1rem;
+}
+
+/* ── History / jobs toolbar ───────────────────────────── */
+.history-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.history-toolbar .btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
 }

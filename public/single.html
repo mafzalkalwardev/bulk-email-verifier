@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Single Verify - Bulk Email Verifier</title>
     <meta name="description" content="Verify any email address with syntax, MX, and SMTP diagnostic checks.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#6366f1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -122,26 +125,36 @@
 
     <!-- Sidebar -->
     <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
-        <div class="px-4 mb-4 text-center">
-            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
-            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        <div class="sidebar-brand mb-4">
+            <a href="/dashboard.html" class="brand-link">
+                <img src="/favicon.svg" alt="" class="brand-icon" width="36" height="36">
+                <div class="brand-text">
+                    <span class="brand-title">Email Verifier</span>
+                    <span class="engine-badge brand-badge" data-engine-badge>truemail-go</span>
+                </div>
+            </a>
         </div>
         <nav class="nav flex-column px-2">
             <a class="nav-link" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
             <a class="nav-link active" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
             <a class="nav-link" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
             <a class="nav-link" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
-            
+            <a class="nav-link" href="/settings.html"><i class="fa-solid fa-gear me-2"></i> Settings</a>
             <hr class="text-secondary mx-3">
             <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
             <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
         </nav>
+        <div class="sidebar-footer">
+            <small class="text-muted">Self-hosted · v1.0.1</small>
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <h2 class="fw-bold mb-1 fade-in">Single Email Verification</h2>
-        <p class="text-muted mb-4 fade-in" style="animation-delay:0.05s;">Syntax, MX records, SMTP dialog — verify-email.org style report</p>
+        <div class="page-header fade-in">
+            <h2>Single Email Verification</h2>
+            <p class="page-subtitle">Syntax, MX records, SMTP dialog — verify-email.org style report</p>
+        </div>
 
         <!-- Input Card -->
         <div class="row fade-in" style="animation-delay: 0.1s;">
@@ -152,8 +165,7 @@
                             <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fa-solid fa-at"></i></span>
                             <input type="email" class="form-control border-start-0 input-glow" id="emailInput"
                                 placeholder="someone@example.com" required autocomplete="email">
-                            <button class="btn px-4 fw-bold text-white" type="submit" id="verifyBtn"
-                                style="background: linear-gradient(135deg, #6366f1, #a855f7); border: none; border-radius: 0 10px 10px 0;">
+                            <button class="btn btn-brand px-4" type="submit" id="verifyBtn">
                                 <i class="fa-solid fa-bolt me-1"></i> Verify
                             </button>
                         </div>

@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History - Bulk Email Verifier</title>
+    <meta name="description" content="Browse past email verification results and search history.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#6366f1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,34 +16,81 @@
 <body>
     <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
 
-    <!-- Sidebar -->
     <div class="sidebar glass-card border-start-0 border-top-0 border-bottom-0 rounded-0">
-        <div class="px-4 mb-4 text-center">
-            <h3 class="gradient-text fw-bold m-0"><i class="fa-solid fa-envelope-circle-check"></i> Verifier</h3>
-            <div class="engine-badge mt-2" data-engine-badge>truemail-go</div>
+        <div class="sidebar-brand mb-4">
+            <a href="/dashboard.html" class="brand-link">
+                <img src="/favicon.svg" alt="" class="brand-icon" width="36" height="36">
+                <div class="brand-text">
+                    <span class="brand-title">Email Verifier</span>
+                    <span class="engine-badge brand-badge" data-engine-badge>truemail-go</span>
+                </div>
+            </a>
         </div>
         <nav class="nav flex-column px-2">
             <a class="nav-link" href="/dashboard.html"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
             <a class="nav-link" href="/single.html"><i class="fa-solid fa-magnifying-glass me-2"></i> Single Verify</a>
             <a class="nav-link" href="/bulk.html"><i class="fa-solid fa-file-csv me-2"></i> Bulk Verify</a>
             <a class="nav-link active" href="/history.html"><i class="fa-solid fa-clock-rotate-left me-2"></i> History</a>
-            
+            <a class="nav-link" href="/settings.html"><i class="fa-solid fa-gear me-2"></i> Settings</a>
             <hr class="text-secondary mx-3">
             <button id="themeToggle" class="btn btn-link nav-link text-start"><i class="fa-solid fa-moon me-2"></i> Toggle Theme</button>
             <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
         </nav>
+        <div class="sidebar-footer">
+            <small class="text-muted">Self-hosted · v1.0.1</small>
+        </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
-            <h2 class="fw-bold">Validation History</h2>
-            <div class="w-25">
+        <div class="page-header fade-in d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h2>Validation History</h2>
+                <p class="page-subtitle">Download bulk job results or browse individual verifications</p>
+            </div>
+            <div style="min-width: 220px; max-width: 280px; width: 100%;">
                 <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search emails...">
             </div>
         </div>
 
+        <div class="glass-card p-4 mb-4 fade-in">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h5 class="section-title mb-0"><i class="fa-solid fa-folder-open me-2 gradient-text"></i>Bulk Jobs</h5>
+                <div class="history-toolbar">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllJobsBtn">
+                        <i class="fa-solid fa-check-double me-1"></i>Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" id="exportSelectedAllBtn" disabled>
+                        <i class="fa-solid fa-download me-1"></i>Download All (CSV)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" id="exportSelectedValidBtn" disabled>
+                        <i class="fa-solid fa-filter me-1"></i>Download Valid Only
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" class="form-check-input" id="selectAllJobsCheckbox" title="Select all jobs">
+                            </th>
+                            <th>File Name</th>
+                            <th>Total</th>
+                            <th>Valid</th>
+                            <th>Invalid</th>
+                            <th>Completed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsBody">
+                        <tr><td colspan="7" class="text-center text-muted">Loading bulk jobs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="glass-card p-4 fade-in" style="animation-delay: 0.1s;">
+            <h5 class="section-title"><i class="fa-solid fa-list me-2 gradient-text"></i>Recent Verifications</h5>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" id="historyTable">
                     <thead>
@@ -55,8 +106,7 @@
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Pagination Controls -->
+
             <div class="d-flex justify-content-between align-items-center mt-3 d-none" id="paginationControls">
                 <button class="btn btn-sm btn-outline-secondary" id="prevBtn">Previous</button>
                 <span class="text-muted small">Page <span id="pageSpan">1</span> of <span id="totalPagesSpan">1</span></span>
@@ -68,34 +118,178 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/engine-ui.js"></script>
+    <script src="/js/csv-export.js"></script>
     <script src="/js/main.js"></script>
     <script>
         let fullHistory = [];
         let filteredHistory = [];
+        let bulkJobs = [];
+        let selectedJobIds = new Set();
         let currentPage = 1;
         const itemsPerPage = 15;
 
+        function isValidRecord(record) {
+            const s = String(record.status || '').toLowerCase();
+            if (s === 'valid' || s === 'ok') return true;
+            return record.details?.report?.valid === true;
+        }
+
+        function statusBadgeClass(record) {
+            if (isValidRecord(record)) return 'bg-success';
+            const s = String(record.status || '').toLowerCase();
+            if (s === 'fail' || s === 'error' || s === 'invalid') return 'bg-danger';
+            if (s === 'disposable' || s === 'catch_all') return 'bg-warning text-dark';
+            if (s === 'unknown' || s === 'no_smtp') return 'bg-secondary';
+            return 'bg-danger';
+        }
+
+        function statusLabel(record) {
+            return isValidRecord(record) ? 'VALID' : String(record.status || 'unknown').toUpperCase();
+        }
+
+        function updateExportButtons() {
+            const hasSelection = selectedJobIds.size > 0;
+            document.getElementById('exportSelectedAllBtn').disabled = !hasSelection;
+            document.getElementById('exportSelectedValidBtn').disabled = !hasSelection;
+        }
+
+        function syncSelectAllCheckbox() {
+            const checkbox = document.getElementById('selectAllJobsCheckbox');
+            if (!bulkJobs.length) {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+                return;
+            }
+            checkbox.checked = selectedJobIds.size === bulkJobs.length;
+            checkbox.indeterminate = selectedJobIds.size > 0 && selectedJobIds.size < bulkJobs.length;
+        }
+
+        async function exportJobs(jobIds, validOnly) {
+            let exported = 0;
+            for (const id of jobIds) {
+                try {
+                    const res = await axios.get(`/api/history/bulk-jobs/${id}`);
+                    const ok = CsvExport.exportJobCsv(res.data, validOnly);
+                    if (ok) exported++;
+                } catch (err) {
+                    showToast(`Could not export job`, 'error');
+                }
+            }
+            if (exported) {
+                showToast(`Downloaded ${exported} file${exported > 1 ? 's' : ''}`, 'success');
+            } else {
+                showToast(validOnly ? 'No valid emails in selected jobs' : 'Nothing to export', 'warning');
+            }
+        }
+
+        function renderJobsTable() {
+            const tbody = document.getElementById('jobsBody');
+            tbody.innerHTML = '';
+
+            if (!bulkJobs.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No bulk jobs yet. Run a bulk verification to see downloadable results here.</td></tr>';
+                updateExportButtons();
+                syncSelectAllCheckbox();
+                return;
+            }
+
+            bulkJobs.forEach(job => {
+                const tr = document.createElement('tr');
+                const checked = selectedJobIds.has(job._id) ? 'checked' : '';
+                const stats = job.stats || {};
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="form-check-input job-select" data-id="${job._id}" ${checked}></td>
+                    <td class="fw-medium"><i class="fa-solid fa-file-csv me-2 text-primary"></i>${job.fileName}</td>
+                    <td>${stats.total ?? '—'}</td>
+                    <td class="text-success fw-semibold">${stats.valid ?? '—'}</td>
+                    <td class="text-danger fw-semibold">${stats.invalid ?? '—'}</td>
+                    <td class="text-muted small">${new Date(job.completedAt).toLocaleString()}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-success job-export-all" data-id="${job._id}" title="Download all results">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                            <button type="button" class="btn btn-success job-export-valid" data-id="${job._id}" title="Download valid only">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            tbody.querySelectorAll('.job-select').forEach(cb => {
+                cb.addEventListener('change', e => {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) selectedJobIds.add(id);
+                    else selectedJobIds.delete(id);
+                    updateExportButtons();
+                    syncSelectAllCheckbox();
+                });
+            });
+
+            tbody.querySelectorAll('.job-export-all').forEach(btn => {
+                btn.addEventListener('click', () => exportJobs([btn.dataset.id], false));
+            });
+
+            tbody.querySelectorAll('.job-export-valid').forEach(btn => {
+                btn.addEventListener('click', () => exportJobs([btn.dataset.id], true));
+            });
+
+            updateExportButtons();
+            syncSelectAllCheckbox();
+        }
+
+        document.getElementById('selectAllJobsCheckbox').addEventListener('change', e => {
+            selectedJobIds.clear();
+            if (e.target.checked) bulkJobs.forEach(job => selectedJobIds.add(job._id));
+            renderJobsTable();
+        });
+
+        document.getElementById('selectAllJobsBtn').addEventListener('click', () => {
+            selectedJobIds.clear();
+            bulkJobs.forEach(job => selectedJobIds.add(job._id));
+            renderJobsTable();
+        });
+
+        document.getElementById('exportSelectedAllBtn').addEventListener('click', () => {
+            exportJobs([...selectedJobIds], false);
+        });
+
+        document.getElementById('exportSelectedValidBtn').addEventListener('click', () => {
+            exportJobs([...selectedJobIds], true);
+        });
+
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const res = await axios.get('/api/history');
-                fullHistory = res.data;
+                const [historyRes, jobsRes] = await Promise.all([
+                    axios.get('/api/history'),
+                    axios.get('/api/history/bulk-jobs'),
+                ]);
+                fullHistory = historyRes.data;
                 filteredHistory = [...fullHistory];
+                bulkJobs = jobsRes.data;
+                renderJobsTable();
                 renderTable();
             } catch (err) {
                 document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading history</td></tr>';
+                document.getElementById('jobsBody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading bulk jobs</td></tr>';
                 showToast('Failed to load history', 'error');
             }
         });
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        document.getElementById('searchInput').addEventListener('input', e => {
             const term = e.target.value.toLowerCase();
-            filteredHistory = fullHistory.filter(h => h.email.toLowerCase().includes(term) || h.status.toLowerCase().includes(term));
+            filteredHistory = fullHistory.filter(h =>
+                h.email.toLowerCase().includes(term) ||
+                String(h.status).toLowerCase().includes(term)
+            );
             currentPage = 1;
             renderTable();
         });
 
         document.getElementById('prevBtn').addEventListener('click', () => {
-            if(currentPage > 1) {
+            if (currentPage > 1) {
                 currentPage--;
                 renderTable();
             }
@@ -103,7 +297,7 @@
 
         document.getElementById('nextBtn').addEventListener('click', () => {
             const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
-            if(currentPage < totalPages) {
+            if (currentPage < totalPages) {
                 currentPage++;
                 renderTable();
             }
@@ -112,9 +306,9 @@
         function renderTable() {
             const tbody = document.getElementById('historyBody');
             tbody.innerHTML = '';
-            
-            if(filteredHistory.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No records found.</td></tr>';
+
+            if (filteredHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No records found.</td></tr>';
                 document.getElementById('paginationControls').classList.add('d-none');
                 return;
             }
@@ -123,7 +317,7 @@
             document.getElementById('pageSpan').innerText = currentPage;
             document.getElementById('totalPagesSpan').innerText = totalPages;
             document.getElementById('paginationControls').classList.remove('d-none');
-            
+
             document.getElementById('prevBtn').disabled = currentPage === 1;
             document.getElementById('nextBtn').disabled = currentPage === totalPages;
 
@@ -132,17 +326,9 @@
 
             paginated.forEach(record => {
                 const tr = document.createElement('tr');
-                
-                // Status Badge styling
-                let badgeClass = 'bg-secondary';
-                const status = record.status.toLowerCase();
-                if(status === 'ok' || status === 'valid') badgeClass = 'bg-success';
-                else if(status === 'fail' || status === 'error' || status === 'invalid') badgeClass = 'bg-danger';
-                else if(status === 'disposable' || status === 'catch_all') badgeClass = 'bg-warning text-dark';
-
                 tr.innerHTML = `
                     <td class="fw-medium">${record.email}</td>
-                    <td><span class="badge ${badgeClass}">${record.status.toUpperCase()}</span></td>
+                    <td><span class="badge ${statusBadgeClass(record)}">${statusLabel(record)}</span></td>
                     <td><span class="badge bg-light text-dark border">${record.source.toUpperCase()}</span></td>
                     <td class="text-muted small">${new Date(record.timestamp).toLocaleString()}</td>
                 `;

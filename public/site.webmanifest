@@ -1,0 +1,17 @@
+{
+  "name": "Bulk Email Verifier",
+  "short_name": "Verifier",
+  "description": "Self-hosted bulk email verification with SMTP checks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d1a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
