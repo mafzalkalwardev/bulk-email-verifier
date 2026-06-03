@@ -261,19 +261,36 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            let historyOk = false;
+            let jobsOk = false;
+
             try {
-                const [historyRes, jobsRes] = await Promise.all([
-                    axios.get('/api/history'),
-                    axios.get('/api/history/bulk-jobs'),
-                ]);
+                const historyRes = await axios.get('/api/history');
                 fullHistory = historyRes.data;
                 filteredHistory = [...fullHistory];
-                bulkJobs = jobsRes.data;
-                renderJobsTable();
+                historyOk = true;
                 renderTable();
             } catch (err) {
-                document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading history</td></tr>';
-                document.getElementById('jobsBody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading bulk jobs</td></tr>';
+                document.getElementById('historyBody').innerHTML =
+                    '<tr><td colspan="4" class="text-center text-danger">Error loading verification log</td></tr>';
+                showToast(err.response?.data?.message || 'Failed to load verification log', 'error');
+            }
+
+            try {
+                const jobsRes = await axios.get('/api/history/bulk-jobs');
+                bulkJobs = jobsRes.data;
+                jobsOk = true;
+                renderJobsTable();
+            } catch (err) {
+                const msg = err.response?.status === 404
+                    ? 'Bulk job downloads require a server restart — run npm start again.'
+                    : (err.response?.data?.message || 'Failed to load bulk jobs');
+                document.getElementById('jobsBody').innerHTML =
+                    `<tr><td colspan="7" class="text-center text-muted">${msg}</td></tr>`;
+                if (err.response?.status !== 404) showToast(msg, 'error');
+            }
+
+            if (!historyOk && !jobsOk) {
                 showToast('Failed to load history', 'error');
             }
         });
