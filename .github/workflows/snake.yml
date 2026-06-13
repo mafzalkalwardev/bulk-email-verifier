@@ -1,0 +1,29 @@
+name: Contribution Snake
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Platane/snk@v3
+        id: snake
+        with:
+          github_user_name: mafzalkalwardev
+          outputs: |
+            dist/snake.svg
+            dist/snake-dark.svg?palette=github-dark
+      - uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          github_token: ${ secrets.GITHUB_TOKEN }
+          publish_dir: ./dist
+          destination_dir: output
+          keep_files: true
