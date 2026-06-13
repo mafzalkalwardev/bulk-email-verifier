@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: snake-${{ github.repository }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +24,11 @@ jobs:
           outputs: |
             dist/snake.svg
             dist/snake-dark.svg?palette=github-dark
-      - uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy snake to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
-          github_token: ${ secrets.GITHUB_TOKEN }
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           destination_dir: output
           keep_files: true
