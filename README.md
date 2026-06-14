@@ -18,6 +18,11 @@ Syntax · MX records · live SMTP dialog · CSV export
 
 ---
 
+## Screenshots
+
+![Application screenshot](docs/screenshots/app.png)
+
+
 ## 🏆 Why this project?
 
 | | Paid SaaS (Hunter, etc.) | **This app** |
