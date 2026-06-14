@@ -1,5 +1,5 @@
 {
-  "name": "email-verifier-app",
+  "name": "@mafzalkalwardev/bulk-email-verifier",
   "version": "1.0.0",
   "description": "Self-hosted bulk email verifier — truemail-go SMTP + Node.js UI",
   "main": "server.js",
@@ -13,7 +13,11 @@
     "setup:go": "cd backend/go && go mod tidy",
     "setup": "npm install && npm run setup:go"
   },
-  "keywords": ["email", "verification", "bulk"],
+  "keywords": [
+    "email",
+    "verification",
+    "bulk"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -32,5 +36,12 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mafzalkalwardev/bulk-email-verifier.git"
   }
 }
