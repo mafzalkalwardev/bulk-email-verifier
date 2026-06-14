@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim
+FROM node:26-bookworm-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev || npm install --omit=dev
