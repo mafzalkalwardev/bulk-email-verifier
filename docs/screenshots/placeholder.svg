@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-  <rect width="800" height="450" fill="#0d1117"/>
-  <rect x="40" y="40" width="720" height="370" rx="12" fill="#161b22" stroke="#30363d" stroke-width="2"/>
-  <text x="400" y="210" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="28" text-anchor="middle">Screenshot</text>
-  <text x="400" y="250" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="18" text-anchor="middle">bulk-email-verifier</text>
-  <text x="400" y="290" fill="#6e7681" font-family="Segoe UI, Arial, sans-serif" font-size="14" text-anchor="middle">Replace with app screenshot in docs/screenshots/</text>
-</svg>
