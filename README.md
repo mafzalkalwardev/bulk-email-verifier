@@ -207,3 +207,10 @@ MIT — [LICENSE](LICENSE). Third-party code in `lib/` has its own licenses.
 Made for developers who need **real SMTP checks** without a subscription.
 
 </div>
+
+## Screenshots
+
+![bulk-email-verifier dashboard](docs/screenshots/app.png)
+
+[Demo video](docs/screenshots/demo.webm)
+
