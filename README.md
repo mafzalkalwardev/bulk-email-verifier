@@ -213,4 +213,3 @@ Made for developers who need **real SMTP checks** without a subscription.
 ![bulk-email-verifier dashboard](docs/screenshots/app.png)
 
 [Demo video](docs/screenshots/demo.webm)
-
