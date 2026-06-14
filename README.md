@@ -14,8 +14,6 @@ Syntax · MX records · live SMTP dialog · CSV export
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
 
-[Features](#-features) · [Quick Start](#-quick-start) · [Engines](#-verification-engines) · [Screenshots](#-ui) · [Deploy](#-publish-to-github)
-
 </div>
 
 ---
@@ -207,9 +205,3 @@ MIT — [LICENSE](LICENSE). Third-party code in `lib/` has its own licenses.
 Made for developers who need **real SMTP checks** without a subscription.
 
 </div>
-
-## Screenshots
-
-![bulk-email-verifier dashboard](docs/screenshots/app.png)
-
-[Demo video](docs/screenshots/demo.webm)
