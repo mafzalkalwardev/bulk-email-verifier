@@ -20,7 +20,12 @@ Syntax · MX records · live SMTP dialog · CSV export
 
 ## Screenshots
 
-![Application screenshot](docs/screenshots/app.png)
+See the [portfolio demos page](https://mafzalkalwardev.github.io/demos.html) for project previews. Run locally and capture with demo data:
+
+```powershell
+npm start
+# Open http://localhost:5000 — use sample emails only
+```
 
 
 ## 🏆 Why this project?
@@ -80,8 +85,8 @@ Syntax · MX records · live SMTP dialog · CSV export
 ### Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/email-verifier-app.git
-cd email-verifier-app
+git clone https://github.com/mafzalkalwardev/bulk-email-verifier.git
+cd bulk-email-verifier
 cp .env.example .env
 npm install
 ```
@@ -159,7 +164,7 @@ See [docs/ENGINES.md](docs/ENGINES.md) for details.
 ## 📁 Project structure
 
 ```
-email-verifier-app/
+bulk-email-verifier/
 ├── backend/go/          # truemail-go API
 ├── lib/                 # Vendored Go libraries
 ├── public/              # Web UI
@@ -177,7 +182,7 @@ email-verifier-app/
 git add .
 git commit -m "feat: self-hosted bulk email verifier"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/email-verifier-app.git
+git remote add origin https://github.com/mafzalkalwardev/bulk-email-verifier.git
 git push -u origin main
 ```
 
@@ -194,6 +199,18 @@ Never commit `.env` (already in `.gitignore`).
 | Bulk lost on tab switch | Return to **Bulk Verify** — job resumes from sessionStorage |
 | All `no_smtp` | Port 25 blocked — try Docker Reacher |
 | `docker` not found | Install Docker Desktop, restart PC |
+
+---
+
+## Compliance and Responsible Use
+
+This project is intended for lawful, permission-based email workflows only. Users must follow CAN-SPAM, GDPR, and other applicable anti-spam and privacy laws, SMTP provider terms, opt-out/unsubscribe requirements, and recipient consent rules.
+
+Do not use this software for phishing, spam, unsolicited bulk mail, purchased lists without permission, or deceptive sender identity. Verify only contacts you are authorized to validate or contact.
+
+The maintainers are not responsible for misuse of this software.
+
+**Status:** Client-ready · self-hosted · demo data recommended for screenshots
 
 ---
 

@@ -9,7 +9,7 @@ Wait until Docker says **“Docker Desktop is running”** (whale icon steady, n
 ## 2. Start Reacher (free verifier engine)
 
 ```powershell
-cd "D:\Email Verifier Github\email-verifier-app"
+cd "bulk-email-verifier"
 docker compose up -d
 ```
 
@@ -26,7 +26,7 @@ You should see `email-verifier-reacher` on port `8081`.
 ## 3. Start the web app
 
 ```powershell
-cd "D:\Email Verifier Github\email-verifier-app"
+cd "bulk-email-verifier"
 npm start
 ```
 
