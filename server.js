@@ -9,6 +9,7 @@ const { ensureGoVerifier, stopGoVerifier } = require('./utils/spawnGo');
 const { resetEngineCache } = require('./utils/verificationEngine');
 
 dotenv.config();
+const { requireIndusLicense } = require('./lib/indus_license');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 async function start() {
+    await requireIndusLicense(__dirname);
     resetEngineCache();
     console.log('📦 Connecting to database...');
     await connectDB();
