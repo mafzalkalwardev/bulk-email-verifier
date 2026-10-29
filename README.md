@@ -23,31 +23,6 @@
 
 ---
 
-## Trophy Cards
-
-<div align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=mafzalkalwardev&theme=algolia&no-frame=true&no-bg=true&margin-w=12&margin-h=12&column=4" alt="GitHub trophy cards" />
-</div>
-
----
-
-## Stats Cards
-
-<div align="center">
-  <img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api?username=mafzalkalwardev&show_icons=true&theme=tokyonight&hide_border=true&rank_icon=github" alt="GitHub stats" />
-  <img height="165" src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=mafzalkalwardev&layout=compact&theme=tokyonight&hide_border=true" alt="Top languages" />
-</div>
-
----
-
-## Activity Graph
-
-<div align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=mafzalkalwardev&theme=react-dark&hide_border=true&area=true" alt="GitHub activity graph" />
-</div>
-
----
-
 ## Contribution Snake
 
 <div align="center">
@@ -74,7 +49,6 @@ See the [portfolio demos page](https://mafzalkalwardev.github.io/demos.html) for
 npm start
 # Open http://localhost:5000 — use sample emails only
 ```
-
 
 ## 🏆 Why this project?
 
