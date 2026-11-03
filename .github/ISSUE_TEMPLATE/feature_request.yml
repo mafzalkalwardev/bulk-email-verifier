@@ -1,0 +1,24 @@
+name: Feature request
+description: A change that fits this self-hosted verifier
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you cannot do with the app today.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: Change you want
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Free mode
+      description: If this affects the bulk cap or single checks, say how free mode should behave. Do not assume unlimited bulk.

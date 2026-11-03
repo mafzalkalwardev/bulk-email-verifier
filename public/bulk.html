@@ -81,7 +81,7 @@
             <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
         </nav>
         <div class="sidebar-footer">
-            <small class="text-muted">Self-hosted · v1.0.1</small>
+            <small class="text-muted">Self-hosted · v1.0.0</small>
         </div>
     </div>
 
@@ -90,6 +90,10 @@
         <div class="page-header fade-in">
             <h2>Bulk Email Verification</h2>
             <p class="page-subtitle">Upload CSV or XLSX — emails detected in any column. Jobs resume when you return to this page.</p>
+        </div>
+
+        <div id="licenseBanner" class="col-lg-9 mx-auto d-none mb-3">
+            <div class="alert alert-warning mb-0" id="licenseBannerText"></div>
         </div>
 
         <div id="resumeBanner" class="col-lg-9 mx-auto d-none mb-3">
@@ -215,6 +219,17 @@
 
         BulkJob.guardNavigationWhileRunning();
 
+        async function showLicenseBanner() {
+            try {
+                const res = await axios.get('/api/license');
+                if (res.data.mode !== 'free') return;
+                const el = document.getElementById('licenseBanner');
+                document.getElementById('licenseBannerText').textContent = res.data.message;
+                el.classList.remove('d-none');
+            } catch (_) {}
+        }
+        showLicenseBanner();
+
         function updateStatsUI(stats, total) {
             document.getElementById('pValid').textContent = stats.valid;
             document.getElementById('pInvalid').textContent = stats.invalid;
@@ -277,6 +292,7 @@
             fileInput.disabled = true;
             job.status = 'running';
             BulkJob.saveBulkJob(job);
+            let stoppedEarly = false;
 
             while (nextEmailIndex < emails.length) {
                 const batch = emails.slice(nextEmailIndex, nextEmailIndex + BATCH);
@@ -285,7 +301,23 @@
                     for (const item of bulkRes.data.results) {
                         job.verifyMap[item.email] = item;
                     }
-                } catch (_) {
+                    if (bulkRes.data.omitted) {
+                        showToast(bulkRes.data.message || 'Free mode bulk cap reached', 'warning');
+                        nextEmailIndex = emails.length;
+                        job.nextEmailIndex = nextEmailIndex;
+                        syncResultsUI(job);
+                        BulkJob.saveBulkJob(job);
+                        stoppedEarly = true;
+                        break;
+                    }
+                } catch (err) {
+                    if (err.response?.status === 402) {
+                        showToast(err.response.data?.message || 'Free mode bulk cap reached', 'error');
+                        nextEmailIndex = emails.length;
+                        job.nextEmailIndex = nextEmailIndex;
+                        stoppedEarly = true;
+                        break;
+                    }
                     for (const email of batch) {
                         job.verifyMap[email] = { email, valid: false, domain_valid: false, mailbox_verified: 'no_smtp', status: 'error' };
                     }
@@ -300,7 +332,7 @@
             jobRunning = false;
             BulkJob.saveBulkJob(job);
             await persistBulkJob(job);
-            showToast('Bulk verification complete!', 'success');
+            if (!stoppedEarly) showToast('Bulk verification complete!', 'success');
             exportBtn.classList.remove('d-none');
             exportValidBtn.classList.remove('d-none');
             uploadBtn.textContent = '🔄 Verify Another File';
@@ -468,6 +500,15 @@
                     showToast('No valid emails found in file', 'error');
                     resetUI();
                     return;
+                }
+
+                if (res.data.mode === 'free' && res.data.remaining === 0) {
+                    showToast(res.data.message || `Free mode allows ${res.data.bulkDailyLimit} bulk addresses per UTC day. None remaining today.`, 'error');
+                    resetUI();
+                    return;
+                }
+                if (res.data.mode === 'free' && emails.length > res.data.remaining) {
+                    showToast(`This file has ${emails.length} addresses. Free mode can verify ${res.data.remaining} more today (cap ${res.data.bulkDailyLimit} per UTC day).`, 'warning');
                 }
 
                 updateFileDisplay(file.name);

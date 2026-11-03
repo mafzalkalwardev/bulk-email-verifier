@@ -87,7 +87,7 @@
             <button id="logoutBtn" class="btn btn-link nav-link text-start text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</button>
         </nav>
         <div class="sidebar-footer">
-            <small class="text-muted">Self-hosted · v1.0.1</small>
+            <small class="text-muted">Self-hosted · v1.0.0</small>
         </div>
     </div>
 
@@ -183,7 +183,7 @@
                             </div>
                             <div>
                                 <div class="fw-semibold small">Bulk CSV / XLSX Support</div>
-                                <div class="text-muted" style="font-size:0.8rem;">Upload hundreds of emails — verified in batches and exported to CSV.</div>
+                                <div class="text-muted" style="font-size:0.8rem;" id="bulkBlurb">Upload a CSV or XLSX — verified in batches, with a valid-only CSV export.</div>
                             </div>
                         </div>
                     </div>
@@ -229,6 +229,12 @@
     <script src="/js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const lic = await axios.get('/api/license');
+                const blurb = document.getElementById('bulkBlurb');
+                if (blurb && lic.data?.message) blurb.textContent = lic.data.message;
+            } catch (_) {}
+
             try {
                 const res = await axios.get('/api/history/stats');
                 const { total, valid, invalid, unknown } = res.data;
