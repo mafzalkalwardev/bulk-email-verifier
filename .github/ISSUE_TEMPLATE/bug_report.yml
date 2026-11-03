@@ -1,0 +1,48 @@
+name: Bug report
+description: The verifier did something that does not match its documented behavior
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, and what the UI or API returned. Redact email addresses.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: License mode
+      options:
+        - free (no license file)
+        - licensed
+        - not sure
+    validations:
+      required: true
+  - type: input
+    id: engine
+    attributes:
+      label: VERIFIER_ENGINE
+      placeholder: truemail
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: How you ran it
+      options:
+        - npm start
+        - docker compose up
+        - docker compose with the reacher profile
+        - other
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Terminal output or the JSON error. Redact secrets and addresses.

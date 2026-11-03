@@ -1,286 +1,113 @@
-<div align="center">
-
 # Bulk Email Verifier
 
-<img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=28&duration=2800&pause=700&color=0EA5E9&center=true&vCenter=true&width=900&lines=Self-Hosted+Bulk+Email+Verification;Syntax+%2B+MX+%2B+SMTP+Mailbox+Checks;Node.js+UI+%2B+Go+Verification+Services;Docker-ready+deployment" alt="Typing SVG" />
+[![CI](https://github.com/mafzalkalwardev/bulk-email-verifier/actions/workflows/ci.yml/badge.svg)](https://github.com/mafzalkalwardev/bulk-email-verifier/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Go](https://img.shields.io/badge/go-1.22-00ADD8?logo=go&logoColor=white)](backend/go/go.mod)
+[![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
 
-<p>
-  <img src="https://komarev.com/ghpvc/?username=mafzalkalwardev&label=Project%20Views&color=0ea5e9&style=for-the-badge" alt="Project views" />
-  <img src="https://img.shields.io/github/stars/mafzalkalwardev/bulk-email-verifier?style=for-the-badge&color=22c55e" alt="GitHub stars" />
-  <img src="https://img.shields.io/github/forks/mafzalkalwardev/bulk-email-verifier?style=for-the-badge&color=f59e0b" alt="GitHub forks" />
-  <img src="https://img.shields.io/github/license/mafzalkalwardev/bulk-email-verifier?style=for-the-badge&color=64748b" alt="License" />
-</p>
+![Bulk Email Verifier dashboard](docs/screenshots/app.png)
 
-<p>
-  <img src="https://skillicons.dev/icons?i=go,nodejs,docker,html,css" alt="Skill icons" />
-</p>
-
-<p>
-  <strong>Self-hosted bulk email verification with syntax, MX, and SMTP mailbox checks — Node.js UI, Go services, and Docker deployment.</strong>
-</p>
-
-</div>
-
----
-
-## Contribution Snake
-
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake.svg">
-    <img alt="Contribution snake" src="https://raw.githubusercontent.com/mafzalkalwardev/google-voice-dispatch-agent/output/github-contribution-grid-snake.svg">
-  </picture>
-</div>
-
----
-
-## SEO Keywords
-
-`bulk email verifier` `MX check` `SMTP verify` `Go email tools`
-
----
-
-## Screenshots
-
-See the [portfolio demos page](https://mafzalkalwardev.github.io/demos.html) for project previews. Run locally and capture with demo data:
-
-```powershell
-npm start
-# Open http://localhost:5000 — use sample emails only
-```
-
-## 🏆 Why this project?
-
-| | Paid SaaS (Hunter, etc.) | **This app** |
-|---|--------------------------|--------------|
-| Cost | 💸 Per email | ✅ **$0** |
-| Data privacy | Sent to third parties | ✅ **Stays on your PC** |
-| SMTP proof | Yes | ✅ **Yes** (truemail-go / Reacher) |
-| Bulk CSV | Yes | ✅ **Any column** |
-
----
-
-## ✨ Features
-
-- 🔍 **Single verify** — verify-email.org style checklist + SMTP server text
-- 📂 **Bulk CSV / XLSX** — finds emails in **any column**
-- ✅ **Valid-only export** — download clean list with original columns
-- 🔄 **Resume bulk jobs** — switch tabs; open **Bulk Verify** again to continue
-- 🔐 **JWT auth** + validation history
-- 🌙 Dark mode
-
----
-
-## 🛠 Tech stack
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  Browser  →  Node.js + Express (:5000)  UI + API        │
-│                    │                                     │
-│         ┌──────────┴──────────┐                          │
-│         ▼                     ▼                          │
-│  truemail-go (:8080)    Reacher Docker (:8081) optional │
-│  SMTP + MX + 550 text   Industry-grade (Gmail-safe)     │
-└─────────────────────────────────────────────────────────┘
-```
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | HTML5, Bootstrap 5, JavaScript |
-| API | Node.js, Express, JWT |
-| Database | MongoDB or in-memory (dev) |
-| Verifier A | **truemail-go** (Go) — built-in |
-| Verifier B | **Reacher** (Rust/Docker) — optional, recommended for huge lists |
-| Misc lists | AfterShip email-verifier (disposable / role) |
-
----
-
-## 🚀 Quick start
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 18+
-- [Go](https://go.dev/dl/) 1.22+ (for truemail-go)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) *(optional, recommended)*
-
-### Install
+Self-hosted email checks on your machine: syntax, MX lookup, and an SMTP mailbox dialog. Node.js UI, a Go verifier, optional Reacher in Docker.
 
 ```bash
-git clone https://github.com/mafzalkalwardev/bulk-email-verifier.git
-cd bulk-email-verifier
+docker compose up --build
+```
+
+Open http://localhost:5000 and register. No license file is required.
+
+## Why this exists
+
+Mailbox checks work by talking to the recipient's mail server. Hosted verifiers take the list and do that somewhere else. This app runs the check on a machine you control and stores accounts and history in your own database. It does not call a paid verification API.
+
+## Free mode
+
+With no `indus-license*.json` file, the app starts in **free mode**:
+
+- Single-address checks are not capped.
+- Bulk checks are limited to **25 addresses per account per UTC day** (`FREE_BULK_DAILY_LIMIT`).
+- The bulk page states the cap. The API returns `402` when the day's allowance is gone.
+
+A license file that verifies at `indus-web-agency.vercel.app` removes the bulk cap. An expired, rejected, or unreachable file keeps free mode and the server logs why. `INDUS_SKIP_LICENSE=1` is a local override that turns on licensed mode without a file.
+
+SMTP still needs outbound port 25. If that port is blocked, mailbox results stay `no_smtp` and are not marked valid.
+
+## What you can do
+
+- Check one address and read the syntax, MX, and SMTP result.
+- Upload a CSV or XLSX. The parser looks for an email in any column.
+- Export every row, or only rows whose mailbox was confirmed.
+- Leave a bulk job and resume it from the Bulk Verify page (stored in the browser session).
+- Sign in with a local account. History stays in MongoDB, or in an in-memory database when `MONGO_URI` is empty.
+- Switch the UI between light and dark.
+
+The default engine is **truemail-go** (syntax, MX, SMTP `RCPT TO`, plus local disposable / role / free-provider lists). **Reacher** is optional:
+
+```bash
+docker compose --profile reacher up --build
+```
+
+Set `VERIFIER_ENGINE=reacher` when you want that engine. If Reacher fails, the app falls back to truemail-go. Details: [docs/ENGINES.md](docs/ENGINES.md).
+
+## Run without Docker
+
+Node.js 18+ and Go 1.22+.
+
+```bash
 cp .env.example .env
 npm install
-```
-
-### Run (truemail-go only)
-
-```bash
 npm start
 ```
 
-Open **http://localhost:5000** → register → verify emails.
+`npm start` starts the UI on port 5000 and the Go verifier on port 8080.
 
-### Run (with Reacher — best for Gmail / bulk)
+## Configuration
 
-```bash
-docker compose up -d
-npm start
-```
-
-In `.env`:
-
-```env
-VERIFIER_ENGINE=auto
-```
-
-`auto` uses **truemail-go first** (fast). Reacher is used if Go is down. Set `VERIFIER_ENGINE=reacher` to force Docker engine.
-
----
-
-## 🔬 Verification engines
-
-| Engine | Speed | Gmail | When to use |
-|--------|-------|-------|-------------|
-| **truemail-go** | ⚡ ~10–20s | Good SMTP 550 | Default — no Docker |
-| **Reacher** | 🐢 can be slow | Headless checks | Huge lists, hard providers |
-
-> **Reacher timeout?** Gmail via Docker can exceed 60s. The app **falls back to truemail-go** automatically.
-
-See [docs/ENGINES.md](docs/ENGINES.md) for details.
-
----
-
-## 📖 Result columns
-
-| Column | Meaning |
-|--------|---------|
-| `domain_valid` | Syntax + MX OK |
-| `mailbox_verified` | `yes` / `no` / `no_smtp` |
-| `valid` | **yes** only when SMTP confirms mailbox |
-
----
-
-## 🖥 UI
-
-- **http://localhost:5000** — web app (only URL for browser)
-- `:8080` / `:8081` — internal APIs (do not open for UI)
-
----
-
-## ⚙️ Environment
-
-| Variable | Default | Description |
-|----------|---------|-------------|
+| Variable | Default | Role |
+|----------|---------|------|
 | `PORT` | `5000` | Web UI |
-| `JWT_SECRET` | — | Change in production |
-| `VERIFIER_ENGINE` | `auto` | `auto` \| `truemail` \| `reacher` |
+| `JWT_SECRET` | — | Set this before anyone else can reach the app |
+| `MONGO_URI` | empty | Empty uses an in-memory database that resets on shutdown |
+| `VERIFIER_ENGINE` | `truemail` | `truemail`, `auto` (same as truemail), or `reacher` |
 | `GO_VERIFIER_URL` | `http://localhost:8080` | truemail-go |
-| `REACHER_URL` | `http://localhost:8081` | Reacher Docker |
-| `REACHER_TIMEOUT_MS` | `60000` | Reacher timeout before fallback |
-| `BULK_CONCURRENCY` | `3` | Parallel emails per batch |
-| `MONGO_URI` | empty | In-memory DB if empty |
+| `REACHER_URL` | `http://localhost:8081` | Reacher, when that profile is running |
+| `REACHER_TIMEOUT_MS` | `60000` | Wait before falling back to truemail-go |
+| `BULK_CONCURRENCY` | `3` | Parallel addresses per batch (capped at 5) |
+| `FREE_BULK_DAILY_LIMIT` | `25` | Free-mode bulk cap. Ignored in licensed mode |
+| `INDUS_SKIP_LICENSE` | unset | `1` runs licensed mode with no license file |
 
----
+Result fields:
 
-## 📁 Project structure
+| Field | Meaning |
+|-------|---------|
+| `domain_valid` | Syntax and MX succeeded, and the domain is not on the disposable list |
+| `mailbox_verified` | `yes`, `no`, or `no_smtp` |
+| `valid` | `yes` only when SMTP confirms the mailbox |
+
+## Project layout
 
 ```
-bulk-email-verifier/
-├── backend/go/          # truemail-go API
-├── lib/                 # Vendored Go libraries
-├── public/              # Web UI
-├── controllers/         # REST handlers
-├── utils/               # CSV parser, engines
-├── docker-compose.yml   # Reacher (optional)
-└── docs/                # REQUIREMENTS, ENGINES
+backend/go/          truemail-go HTTP service
+lib/                 vendored truemail-go and AfterShip email-verifier
+public/              web UI
+controllers/         auth, verify, history
+utils/               CSV/XLSX parser, engine client
+docker-compose.yml   UI, Go verifier, MongoDB; Reacher is a profile
+docs/ENGINES.md      what each engine does
 ```
 
----
+## Contributing
 
-## 🚢 Publish to GitHub
+See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and feature requests use the issue templates.
 
-```bash
-git add .
-git commit -m "feat: self-hosted bulk email verifier"
-git branch -M main
-git remote add origin https://github.com/mafzalkalwardev/bulk-email-verifier.git
-git push -u origin main
-```
+## Responsible use
 
-Never commit `.env` (already in `.gitignore`).
+Use this for lists you are allowed to check. The maintainers are not responsible for misuse.
 
----
+## License
 
-## 🐛 Troubleshooting
+MIT — [LICENSE](LICENSE). Code under `lib/` keeps its own licenses.
 
-| Issue | Fix |
-|-------|-----|
-| `ECONNREFUSED` on register | Wait for `In-Memory MongoDB ready` before signing up |
-| Reacher timeout | Uses truemail-go fallback; or set `VERIFIER_ENGINE=truemail` |
-| Bulk lost on tab switch | Return to **Bulk Verify** — job resumes from sessionStorage |
-| All `no_smtp` | Port 25 blocked — try Docker Reacher |
-| `docker` not found | Install Docker Desktop, restart PC |
+Author: [Muhammad Afzal Kalwar](https://github.com/mafzalkalwardev)
 
----
-
-## Compliance and Responsible Use
-
-This project is intended for lawful, permission-based email workflows only. Users must follow CAN-SPAM, GDPR, and other applicable anti-spam and privacy laws, SMTP provider terms, opt-out/unsubscribe requirements, and recipient consent rules.
-
-Do not use this software for phishing, spam, unsolicited bulk mail, purchased lists without permission, or deceptive sender identity. Verify only contacts you are authorized to validate or contact.
-
-The maintainers are not responsible for misuse of this software.
-
-**Status:** Client-ready · self-hosted · demo data recommended for screenshots
-
----
-
-## 📄 License
-
-MIT — [LICENSE](LICENSE). Third-party code in `lib/` has its own licenses.
-
----
-
-<div align="center">
-
-**⭐ Star this repo if it saved you from paid verification APIs**
-
-Made for developers who need **real SMTP checks** without a subscription.
-
-</div>
-
----
-
-## Discoverability
-
-**Author:** Muhammad Afzal Kalwar ([@mafzalkalwardev](https://github.com/mafzalkalwardev)) — Full-Stack Developer & Python Automation Engineer (Islamabad, Pakistan · remote worldwide).
-
-**Hire / contact:** GitHub [@mafzalkalwardev](https://github.com/mafzalkalwardev) · LinkedIn [@mafzalkalwardev](https://www.linkedin.com/in/mafzalkalwardev) · WhatsApp [+92 307 9670503](https://wa.me/923079670503) · [Portfolio](https://mafzalkalwardev.github.io) · [Email](mailto:kalwarmuhammadafzal3@gmail.com)
-
-### Who is this for?
-Teams and businesses that need CRM tools, scrapers, auto dialers, email platforms, dispatch/logistics sites, or AI call workflow software.
-
-### FAQ
-- **Who built this?** Muhammad Afzal Kalwar (`mafzalkalwardev`).
-- **Can I hire the author?** Yes — remote freelance and contract. See contact links above.
-- **Related work?** Browse [all repositories](https://github.com/mafzalkalwardev?tab=repositories) and the [live portfolio](https://mafzalkalwardev.github.io).
-
-<details>
-<summary><strong>SEO / GEO / AEO keywords</strong></summary>
-
-Muhammad Afzal Kalwar, mafzalkalwardev, bulk-email-verifier, full-stack developer, Python automation engineer, Islamabad Pakistan, freelance remote developer, CRM scraping dialer email AI tools, email-verification, ai, mx-check, smtp, nodejs, automation, golang, email-automation, docker
-
-</details>
-
----
-
-## Contact
-
-| Channel | Handle / Number |
-|:--|:--|
-| GitHub | [@mafzalkalwardev](https://github.com/mafzalkalwardev) |
-| LinkedIn | [@mafzalkalwardev](https://www.linkedin.com/in/mafzalkalwardev) |
-| WhatsApp | [+92 307 9670503](https://wa.me/923079670503) |
-| Portfolio | [mafzalkalwardev.github.io](https://mafzalkalwardev.github.io) |
-| Email | [kalwarmuhammadafzal3@gmail.com](mailto:kalwarmuhammadafzal3@gmail.com) |
+If this helped, a star helps others find it.

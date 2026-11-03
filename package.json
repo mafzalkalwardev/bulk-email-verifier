@@ -11,7 +11,8 @@
     "stop:reacher": "docker compose down",
     "start:all": "powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1",
     "setup:go": "cd backend/go && go mod tidy",
-    "setup": "npm install && npm run setup:go"
+    "setup": "npm install && npm run setup:go",
+    "test": "node --test test/*.test.js"
   },
   "keywords": [
     "email",

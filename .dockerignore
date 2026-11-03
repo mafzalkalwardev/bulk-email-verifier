@@ -1,0 +1,12 @@
+.git
+node_modules
+npm-debug.log
+uploads
+data
+coverage
+*.md
+.env
+.env.*
+indus-license*.json
+backend/go/verifier
+backend/go/verifier.exe

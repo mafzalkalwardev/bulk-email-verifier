@@ -1,17 +1,70 @@
-# Free self-hosted email verifier — Reacher (recommended when truemail-go is slow or flaky)
-# Usage: docker compose up -d
-# Then set in .env: VERIFIER_ENGINE=reacher
+# One command for the app: docker compose up --build
+# UI: http://localhost:5000
+# Optional Reacher engine: docker compose --profile reacher up --build
 
 services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  verifier:
+    build:
+      context: .
+      dockerfile: Dockerfile.verifier
+    restart: unless-stopped
+    environment:
+      VERIFIER_GO_PORT: "8080"
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: "5000"
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:-change_me_to_a_long_random_string}
+      MONGO_URI: mongodb://mongo:27017/bulk-email-verifier
+      GO_VERIFIER_URL: http://verifier:8080
+      VERIFIER_ENGINE: ${VERIFIER_ENGINE:-truemail}
+      REACHER_URL: http://reacher:8080
+      REACHER_TIMEOUT_MS: ${REACHER_TIMEOUT_MS:-60000}
+      BULK_CONCURRENCY: ${BULK_CONCURRENCY:-3}
+      FREE_BULK_DAILY_LIMIT: ${FREE_BULK_DAILY_LIMIT:-25}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      mongo:
+        condition: service_healthy
+      verifier:
+        condition: service_healthy
+
   reacher:
+    profiles: ["reacher"]
     image: reacherhq/backend:latest
-    container_name: email-verifier-reacher
     ports:
       - "8081:8080"
     restart: unless-stopped
     environment:
       RUST_LOG: info
-    # Optional SMTP proxy if port 25 is blocked on your PC:
-    # environment:
-    #   REACHER_PROXY_HOST: host.docker.internal
-    #   REACHER_PROXY_PORT: 1080
+
+volumes:
+  mongo-data:

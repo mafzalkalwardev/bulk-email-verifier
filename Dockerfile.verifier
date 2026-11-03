@@ -1,0 +1,17 @@
+FROM golang:1.22-bookworm AS build
+WORKDIR /src
+COPY lib/truemail-go lib/truemail-go
+COPY lib/email-verifier lib/email-verifier
+COPY backend/go backend/go
+WORKDIR /src/backend/go
+RUN go build -o /out/verifier .
+
+FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /out/verifier /usr/local/bin/verifier
+ENV VERIFIER_GO_PORT=8080
+EXPOSE 8080
+USER nobody
+CMD ["verifier"]

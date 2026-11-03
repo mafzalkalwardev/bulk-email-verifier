@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.local
 .env.*.local
+data/
+indus-license*.json
 
 # Runtime / uploads
 uploads/

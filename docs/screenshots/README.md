@@ -1,11 +1,7 @@
 # Screenshots
 
-Add PNG or JPG captures of the application here, then update the main README:
+`app.png` is a capture of the running app (dashboard after registering an account). Replace it by starting the app and shooting the UI again when the layout changes. Do not paste mock numbers into the image.
 
 ```markdown
-## Screenshots
-
-![App screenshot](docs/screenshots/app.png)
+![Bulk Email Verifier dashboard](docs/screenshots/app.png)
 ```
-
-Recommended: 1280×720 or 800×450, dark/light as appropriate.

@@ -1,45 +1,27 @@
-# Bulk Email Verifier v1.0.0 — Final Release
+# Bulk Email Verifier v1.0.0
 
-Self-hosted bulk email verification with **real SMTP checks** — free, no paid APIs.
+Self-hosted email verification. No paid verification API.
 
 ## Install
 
 ```bash
-git clone https://github.com/mafzalkalwardev/bulk-email-verifier.git
-cd bulk-email-verifier
-cp .env.example .env
-npm install
-npm start
+docker compose up --build
 ```
 
-Open **http://localhost:5000**
+Open http://localhost:5000
 
-## What's included
+Without Docker: Node.js 18+, Go 1.22+, then `cp .env.example .env && npm install && npm start`.
 
-- **truemail-go** — syntax, MX priorities, live SMTP RCPT + server responses (550, etc.)
-- **Bulk CSV/XLSX** — email in any column, valid-only export
-- **Bulk job resume** — progress saved if you leave the page
-- **Optional Reacher** via Docker (`VERIFIER_ENGINE=reacher`) — not required
+## Free mode
 
-## Recommended `.env`
+No license file required. Single checks are not capped. Bulk is 25 addresses per account per UTC day until a license file verifies.
 
-```env
-VERIFIER_ENGINE=truemail
-GO_VERIFIER_URL=http://localhost:8080
-```
+## Included
 
-## Requirements
-
-- Node.js 18+
-- Go 1.22+
-- Docker (optional)
-
-## Fixes in this release
-
-- truemail-go as default engine (fast SMTP, no 2-minute Reacher timeouts)
-- MongoDB starts before the web server (fixes register `ECONNREFUSED`)
-- Reacher fallback when explicitly enabled
-- Bulk verification persists across tab navigation
+- truemail-go: syntax, MX, SMTP response text
+- Bulk CSV/XLSX with the address in any column, plus valid-only export
+- Bulk job resume in the browser session
+- Optional Reacher (`docker compose --profile reacher up --build`)
 
 ## License
 
