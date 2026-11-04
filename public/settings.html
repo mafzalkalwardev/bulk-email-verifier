@@ -106,7 +106,7 @@
 
                 <div class="glass-card p-4">
                     <h5 class="mb-3 fw-bold"><i class="fa-solid fa-scale-balanced me-2 gradient-text"></i>Why this stack? (not used in this app)</h5>
-                    <p class="small text-muted">We evaluated everything in your workspace. <strong>truemail-go</strong> is the best fit for self-hosted bulk verify with verify-email.org-style SMTP reports.</p>
+                    <p class="small text-muted"><strong>truemail-go</strong> is the default and recommended engine for self-hosted bulk verification. <strong>Reacher</strong> is available as an optional Docker engine.</p>
                     <div class="table-responsive">
                         <table class="table table-sm align-middle mb-0 engine-compare-table">
                             <thead>
@@ -132,8 +132,8 @@
         function renderCompareTable() {
             const tbody = document.getElementById('engineCompareBody');
             const rows = [
-                { name: 'Reacher (Docker)', smtp: 'Yes — best for bulk', used: 'Yes (recommended)', cls: 'table-success' },
-                { name: 'truemail-go', smtp: 'Yes — full RCPT + codes', used: 'Yes (built-in)', cls: '' },
+                { name: 'Reacher (Docker)', smtp: 'Yes — optional engine', used: 'Yes (optional)', cls: '' },
+                { name: 'truemail-go', smtp: 'Yes — full RCPT + codes', used: 'Yes (default, recommended)', cls: 'table-success' },
                 { name: 'AfterShip email-verifier', smtp: 'Lists only', used: 'Yes (with truemail)', cls: '' },
                 { name: 'validate_email', smtp: 'No', used: 'No', cls: '' },
                 { name: 'KnowEmail.exe', smtp: 'Partial', used: 'No — desktop only', cls: '' },
